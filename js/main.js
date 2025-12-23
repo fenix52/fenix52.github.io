@@ -1,313 +1,296 @@
-/**
- * Main JavaScript - Основная логика сайта
- * Арзамас Декор
- */
+// Main application file
 
-// Глобальные переменные
-const APP = {
-  isMobile: false,
-  isTablet: false,
-  isDesktop: false,
-  scrollPosition: 0,
-  isScrolling: false
+class App {
+  constructor() {
+    this.init();
+  }
+
+  init() {
+    this.setupPreloader();
+    this.setupScrollToTop();
+    this.setupFloatingButtons();
+    this.setupSmoothScrollLinks();
+    this.setupLazyLoading();
+    this.initPhoneMasks();
+    this.initAnalytics();
+    this.checkBrowserSupport();
+  }
+
+  setupPreloader() {
+    window.addEventListener('load', () => {
+      const preloader = document.getElementById('preloader');
+      if (preloader) {
+        setTimeout(() => {
+          preloader.classList.add('hidden');
+        }, 500);
+      }
+    });
+  }
+
+  setupScrollToTop() {
+    const scrollTopBtn = document.querySelector('.scroll-top');
+    if (!scrollTopBtn) return;
+
+    const toggleScrollTop = throttle(() => {
+      if (window.pageYOffset > 500) {
+        scrollTopBtn.classList.add('visible');
+      } else {
+        scrollTopBtn.classList.remove('visible');
+      }
+    }, 100);
+
+    window.addEventListener('scroll', toggleScrollTop);
+
+    scrollTopBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+
+  setupFloatingButtons() {
+    const floatingButtons = document.querySelectorAll('.floating-btn');
+    
+    floatingButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const action = button.dataset.action;
+        this.handleFloatingButtonClick(action);
+        this.trackEvent('floating_button', action);
+      });
+    });
+  }
+
+  handleFloatingButtonClick(action) {
+    switch (action) {
+      case 'call':
+        window.location.href = 'tel:+79957767575';
+        break;
+      case 'whatsapp':
+        window.open('https://wa.me/79957767575', '_blank');
+        break;
+      case 'telegram':
+        window.open('https://t.me/+79957767575', '_blank');
+        break;
+    }
+  }
+
+  setupSmoothScrollLinks() {
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (href === '#') return;
+
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+          smoothScrollTo(target);
+        }
+      });
+    });
+  }
+
+  setupLazyLoading() {
+    const images = document.querySelectorAll('img[data-src]');
+    
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          img.removeAttribute('data-src');
+          img.classList.add('loaded');
+          observer.unobserve(img);
+        }
+      });
+    }, {
+      rootMargin: '50px'
+    });
+
+    images.forEach(img => imageObserver.observe(img));
+  }
+
+  initPhoneMasks() {
+    const phoneInputs = document.querySelectorAll('input[type="tel"]');
+    
+    phoneInputs.forEach(input => {
+      input.addEventListener('focus', () => {
+        if (!input.value) {
+          input.value = '+7 ';
+        }
+      });
+
+      input.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        
+        if (value.length > 0) {
+          if (value[0] === '8') {
+            value = '7' + value.slice(1);
+          }
+          if (value[0] !== '7') {
+            value = '7' + value;
+          }
+        }
+
+        let formattedValue = '+7';
+        if (value.length > 1) {
+          formattedValue += ' (' + value.substring(1, 4);
+        }
+        if (value.length >= 5) {
+          formattedValue += ') ' + value.substring(4, 7);
+        }
+        if (value.length >= 8) {
+          formattedValue += '-' + value.substring(7, 9);
+        }
+        if (value.length >= 10) {
+          formattedValue += '-' + value.substring(9, 11);
+        }
+
+        e.target.value = formattedValue;
+      });
+
+      input.addEventListener('keydown', (e) => {
+        const value = e.target.value;
+        if (e.key === 'Backspace' && value === '+7 ') {
+          e.target.value = '';
+        }
+      });
+    });
+  }
+
+  initAnalytics() {
+    if (typeof gtag !== 'undefined') {
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    }
+
+    if (typeof ym !== 'undefined') {
+      ym(XXXXXXXXX, 'init', {
+        clickmap: true,
+        trackLinks: true,
+        accurateTrackBounce: true,
+        webvisor: true
+      });
+    }
+  }
+
+  trackEvent(category, action, label = '') {
+    if (typeof gtag !== 'undefined') {
+      gtag('event', action, {
+        event_category: category,
+        event_label: label
+      });
+    }
+
+    if (typeof ym !== 'undefined') {
+      ym(XXXXXXXXX, 'reachGoal', `${category}_${action}`);
+    }
+
+    console.log('Event tracked:', category, action, label);
+  }
+
+  checkBrowserSupport() {
+    const features = {
+      flexbox: CSS.supports('display', 'flex'),
+      grid: CSS.supports('display', 'grid'),
+      customProperties: CSS.supports('--custom', '0'),
+      intersectionObserver: 'IntersectionObserver' in window
+    };
+
+    const unsupported = Object.keys(features).filter(key => !features[key]);
+
+    if (unsupported.length > 0) {
+      console.warn('Ваш браузер не поддерживает некоторые функции:', unsupported);
+      
+      if (unsupported.length > 2) {
+        this.showBrowserWarning();
+      }
+    }
+  }
+
+  showBrowserWarning() {
+    const warning = document.createElement('div');
+    warning.innerHTML = `
+      <div style="position: fixed; top: 0; left: 0; right: 0; background: #f39c12; color: white; 
+                  padding: 12px; text-align: center; z-index: 99999; font-size: 14px;">
+        <strong>Внимание!</strong> Ваш браузер устарел. Для корректной работы сайта обновите браузер.
+        <button onclick="this.parentElement.remove()" style="margin-left: 20px; background: white; 
+                color: #f39c12; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;">
+          Закрыть
+        </button>
+      </div>
+    `;
+    document.body.insertBefore(warning, document.body.firstChild);
+  }
+
+  setupErrorHandling() {
+    window.addEventListener('error', (event) => {
+      console.error('Global error:', event.error);
+      this.trackEvent('error', 'javascript', event.error?.message || 'Unknown error');
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('Unhandled promise rejection:', event.reason);
+      this.trackEvent('error', 'promise', event.reason?.message || 'Unknown error');
+    });
+  }
+}
+
+const devTools = {
+  clearStorage: () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    console.log('✅ Storage cleared');
+  },
+  
+  showFormData: () => {
+    const data = getFromLocalStorage('formSubmissions', []);
+    console.table(data);
+  },
+
+  testModal: (modalId) => {
+    if (typeof openModal !== 'undefined') {
+      openModal(modalId);
+    }
+  },
+
+  version: '1.0.0',
+  
+  info: () => {
+    console.log(`
+    🏭 Арзамас Декор
+    📦 Version: ${devTools.version}
+    🚀 Loaded modules: ${Object.keys(window).filter(k => k.includes('Instance')).join(', ')}
+    `);
+  }
 };
 
-// Инициализация при загрузке DOM
-document.addEventListener('DOMContentLoaded', function() {
-  initApp();
+window.devTools = devTools;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const app = new App();
+  window.app = app;
+
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    console.log('%c🏭 Арзамас Декор', 'font-size: 24px; color: #E74C3C; font-weight: bold;');
+    console.log('%cСайт успешно загружен!', 'font-size: 14px; color: #27AE60;');
+    console.log('%cИспользуйте window.devTools для отладки', 'font-size: 12px; color: #6C757D;');
+  }
 });
 
-// Инициализация приложения
-function initApp() {
-  detectDevice();
-  initPreloader();
-  initScrollTop();
-  initFloatingButtons();
-  initSmoothScroll();
-  initLazyLoading();
-  initScrollAnimations();
-  handleScrollEvents();
-  
-  console.log('✅ Приложение инициализировано');
-}
+window.addEventListener('online', () => {
+  console.log('✅ Соединение восстановлено');
+});
 
-// Определение типа устройства
-function detectDevice() {
-  const width = window.innerWidth;
-  APP.isMobile = width < 768;
-  APP.isTablet = width >= 768 && width < 1024;
-  APP.isDesktop = width >= 1024;
-  
-  // Добавляем классы к body
-  document.body.classList.toggle('is-mobile', APP.isMobile);
-  document.body.classList.toggle('is-tablet', APP.isTablet);
-  document.body.classList.toggle('is-desktop', APP.isDesktop);
-}
+window.addEventListener('offline', () => {
+  console.warn('⚠️ Отсутствует интернет-соединение');
+});
 
-// Обработка изменения размера окна
-window.addEventListener('resize', debounce(function() {
-  detectDevice();
-}, 250));
-
-// Прелоадер
-function initPreloader() {
-  const preloader = document.getElementById('preloader');
-  if (!preloader) return;
-  
-  window.addEventListener('load', function() {
-    setTimeout(() => {
-      preloader.classList.add('hidden');
-      setTimeout(() => {
-        preloader.style.display = 'none';
-      }, 300);
-    }, 500);
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    // navigator.serviceWorker.register('/sw.js')
+    //   .then(reg => console.log('✅ Service Worker registered'))
+    //   .catch(err => console.log('❌ Service Worker registration failed:', err));
   });
 }
-
-// Кнопка "Наверх"
-function initScrollTop() {
-  const scrollTopBtn = document.querySelector('.scroll-top');
-  if (!scrollTopBtn) return;
-  
-  scrollTopBtn.addEventListener('click', function() {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  });
-}
-
-// Плавающие кнопки связи
-function initFloatingButtons() {
-  const floatingButtons = document.querySelectorAll('.floating-btn');
-  
-  floatingButtons.forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      const href = this.getAttribute('href');
-      if (href.startsWith('tel:') || href.startsWith('https://wa.me') || href.startsWith('https://t.me')) {
-        // Разрешаем переход по ссылке
-        return true;
-      }
-      e.preventDefault();
-    });
-  });
-}
-
-// Плавная прокрутка к якорям
-function initSmoothScroll() {
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-      const href = this.getAttribute('href');
-      if (href === '#') return;
-      
-      e.preventDefault();
-      const target = document.querySelector(href);
-      
-      if (target) {
-        const headerHeight = document.querySelector('.header')?.offsetHeight || 0;
-        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
-        
-        window.scrollTo({
-          top: targetPosition,
-          behavior: 'smooth'
-        });
-        
-        // Закрываем мобильное меню если открыто
-        const nav = document.querySelector('.header__nav');
-        const burger = document.querySelector('.header__burger');
-        if (nav && nav.classList.contains('active')) {
-          nav.classList.remove('active');
-          burger?.classList.remove('active');
-        }
-      }
-    });
-  });
-}
-
-// Ленивая загрузка изображений
-function initLazyLoading() {
-  const images = document.querySelectorAll('img[data-src]');
-  
-  const imageObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const img = entry.target;
-        img.src = img.dataset.src;
-        img.removeAttribute('data-src');
-        observer.unobserve(img);
-      }
-    });
-  });
-  
-  images.forEach(img => imageObserver.observe(img));
-}
-
-// Анимации при скролле
-function initScrollAnimations() {
-  const elements = document.querySelectorAll('[data-aos]');
-  
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('aos-animate');
-      }
-    });
-  }, {
-    threshold: 0.1,
-    rootMargin: '0px 0px -100px 0px'
-  });
-  
-  elements.forEach(el => observer.observe(el));
-}
-
-// Обработка событий скролла
-function handleScrollEvents() {
-  let ticking = false;
-  
-  window.addEventListener('scroll', function() {
-    APP.scrollPosition = window.pageYOffset;
-    
-    if (!ticking) {
-      window.requestAnimationFrame(function() {
-        updateScrollElements();
-        ticking = false;
-      });
-      ticking = true;
-    }
-  });
-}
-
-// Обновление элементов при скролле
-function updateScrollElements() {
-  const scrollTop = window.pageYOffset;
-  
-  // Хедер
-  const header = document.querySelector('.header');
-  if (header) {
-    header.classList.toggle('scrolled', scrollTop > 50);
-  }
-  
-  // Кнопка "Наверх"
-  const scrollTopBtn = document.querySelector('.scroll-top');
-  if (scrollTopBtn) {
-    scrollTopBtn.classList.toggle('visible', scrollTop > 500);
-  }
-}
-
-// Утилиты
-
-// Debounce функция
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
-
-// Throttle функция
-function throttle(func, limit) {
-  let inThrottle;
-  return function() {
-    const args = arguments;
-    const context = this;
-    if (!inThrottle) {
-      func.apply(context, args);
-      inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
-    }
-  };
-}
-
-// Форматирование чисел
-function formatNumber(num) {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-}
-
-// Валидация email
-function isValidEmail(email) {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return re.test(email);
-}
-
-// Валидация телефона
-function isValidPhone(phone) {
-  const re = /^[\d\s\+\-\(\)]+$/;
-  return re.test(phone) && phone.replace(/\D/g, '').length >= 10;
-}
-
-// Получение параметров из URL
-function getUrlParams() {
-  const params = {};
-  const queryString = window.location.search.substring(1);
-  const queries = queryString.split('&');
-  
-  queries.forEach(query => {
-    const [key, value] = query.split('=');
-    if (key) {
-      params[decodeURIComponent(key)] = decodeURIComponent(value || '');
-    }
-  });
-  
-  return params;
-}
-
-// Показать уведомление
-function showNotification(message, type = 'info') {
-  const notification = document.createElement('div');
-  notification.className = `notification notification--${type}`;
-  notification.textContent = message;
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 16px 24px;
-    background: ${type === 'success' ? '#27AE60' : type === 'error' ? '#E74C3C' : '#3498DB'};
-    color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 10000;
-    animation: slideInRight 0.3s ease-out;
-  `;
-  
-  document.body.appendChild(notification);
-  
-  setTimeout(() => {
-    notification.style.animation = 'slideOutRight 0.3s ease-out';
-    setTimeout(() => notification.remove(), 300);
-  }, 3000);
-}
-
-// Копирование в буфер обмена
-function copyToClipboard(text) {
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => {
-      showNotification('Скопировано в буфер обмена!', 'success');
-    });
-  } else {
-    // Fallback для старых браузеров
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textarea);
-    showNotification('Скопировано в буфер обмена!', 'success');
-  }
-}
-
-// Экспорт функций для использования в других модулях
-window.APP = APP;
-window.showNotification = showNotification;
-window.formatNumber = formatNumber;
-window.isValidEmail = isValidEmail;
-window.isValidPhone = isValidPhone;
-window.copyToClipboard = copyToClipboard;
-window.debounce = debounce;
-window.throttle = throttle;
