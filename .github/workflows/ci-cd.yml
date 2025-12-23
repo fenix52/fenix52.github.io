@@ -30,12 +30,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm install --package-lock-only && npm ci
 
-      - name: 🔍 Run ESLint
+      - name: 🔍 Run linter
         run: npm run lint
 
       - name: ✅ Lint passed
@@ -56,10 +55,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm install --package-lock-only && npm ci
 
       - name: 🏗️ Build project
         run: npm run build
@@ -69,11 +67,11 @@ jobs:
         with:
           name: build
           path: |
-            dist/
-            build/
             *.html
             *.css
             *.js
+            assets/
+            images/
             !node_modules/
           retention-days: 7
 
@@ -95,23 +93,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm install --package-lock-only && npm ci
 
       - name: 🧪 Run unit tests
         run: npm test
-
-      - name: 📊 Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: |
-            coverage/
-            test-results/
-          retention-days: 7
 
       - name: ✅ Tests passed
         run: echo "✅ All tests passed!"
