@@ -1,0 +1,377 @@
+name: 🚀 CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  release:
+    types: [published]
+  workflow_dispatch: # Manual trigger
+
+env:
+  NODE_VERSION: '20.x'
+  CACHE_KEY_PREFIX: v1
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  # ==========================================
+  # 1. INSTALL DEPENDENCIES
+  # ==========================================
+  install:
+    name: 📦 Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 💾 Cache node_modules
+        uses: actions/cache@v4
+        id: cache-deps
+        with:
+          path: node_modules
+          key: ${{ env.CACHE_KEY_PREFIX }}-deps-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ env.CACHE_KEY_PREFIX }}-deps-${{ runner.os }}-
+
+      - name: 📦 Install dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: npm ci
+
+  # ==========================================
+  # 2. CODE QUALITY - LINTER
+  # ==========================================
+  lint:
+    name: 🔍 Lint Code
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 💾 Restore cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ env.CACHE_KEY_PREFIX }}-deps-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: 🔍 Run ESLint
+        run: npm run lint
+        continue-on-error: false
+
+      - name: 📊 Upload lint results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-results
+          path: eslint-report.json
+          retention-days: 7
+
+  # ==========================================
+  # 3. SECURITY SCAN
+  # ==========================================
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 💾 Restore cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ env.CACHE_KEY_PREFIX }}-deps-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: 🔒 Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: 🛡️ Run Snyk security scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+  # ==========================================
+  # 4. BUILD PROJECT
+  # ==========================================
+  build:
+    name: 🏗️ Build Project
+    runs-on: ubuntu-latest
+    needs: [lint, security]
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: 💾 Restore cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ env.CACHE_KEY_PREFIX }}-deps-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: 🏗️ Build project
+        run: npm run build
+
+      - name: 📦 Upload build artifacts
+        if: matrix.node-version == '20.x'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            dist/
+            build/
+            out/
+            *.html
+            *.css
+            *.js
+          retention-days: 30
+
+  # ==========================================
+  # 5. RUN TESTS
+  # ==========================================
+  test:
+    name: 🧪 Run Tests
+    runs-on: ubuntu-latest
+    needs: install
+    strategy:
+      matrix:
+        test-type: [unit, integration, e2e]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 💾 Restore cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ env.CACHE_KEY_PREFIX }}-deps-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: 🧪 Run ${{ matrix.test-type }} tests
+        run: npm run test:${{ matrix.test-type }}
+        continue-on-error: false
+
+      - name: 📊 Upload test coverage
+        if: matrix.test-type == 'unit'
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/coverage-final.json
+          flags: unittests
+          name: codecov-umbrella
+
+      - name: 📈 Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.test-type }}
+          path: |
+            coverage/
+            test-results/
+          retention-days: 7
+
+  # ==========================================
+  # 6. BUILD STATUS REPORT
+  # ==========================================
+  report:
+    name: 📊 Build Status Report
+    runs-on: ubuntu-latest
+    needs: [lint, security, build, test]
+    if: always()
+    steps:
+      - name: 📥 Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: 📊 Generate report
+        run: |
+          echo "# 🚀 CI/CD Pipeline Report" > report.md
+          echo "" >> report.md
+          echo "## 📅 Build Information" >> report.md
+          echo "- **Commit**: ${{ github.sha }}" >> report.md
+          echo "- **Branch**: ${{ github.ref_name }}" >> report.md
+          echo "- **Triggered by**: ${{ github.actor }}" >> report.md
+          echo "- **Workflow**: ${{ github.workflow }}" >> report.md
+          echo "" >> report.md
+          echo "## ✅ Job Status" >> report.md
+          echo "- Lint: ${{ needs.lint.result }}" >> report.md
+          echo "- Security: ${{ needs.security.result }}" >> report.md
+          echo "- Build: ${{ needs.build.result }}" >> report.md
+          echo "- Tests: ${{ needs.test.result }}" >> report.md
+          cat report.md
+
+      - name: 💬 Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('report.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+
+      - name: 📧 Send notification
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "❌ Build Failed: ${{ github.repository }}"
+          body: "Build failed for commit ${{ github.sha }} on branch ${{ github.ref_name }}"
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: GitHub Actions
+
+  # ==========================================
+  # 7. DEPLOY TO STAGING
+  # ==========================================
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, test, report]
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    environment:
+      name: staging
+      url: https://staging.your-domain.com
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: 🚀 Deploy to GitHub Pages (Staging)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          publish_branch: gh-pages-staging
+          cname: staging.your-domain.com
+
+      - name: 📝 Create deployment comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: '🚀 Deployed to **Staging**: https://staging.your-domain.com'
+            });
+
+  # ==========================================
+  # 8. DEPLOY TO PRODUCTION
+  # ==========================================
+  deploy-production:
+    name: 🌐 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, test, report]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://fenix52.github.io
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: 🌐 Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          publish_branch: gh-pages
+          cname: fenix52.github.io
+
+      - name: 🎉 Create release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/**/*
+            build/**/*
+          generate_release_notes: true
+
+      - name: 📢 Notify success
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: '✅ Successfully deployed to **Production**: https://fenix52.github.io'
+            });
+
+  # ==========================================
+  # 9. ROLLBACK (Manual)
+  # ==========================================
+  rollback:
+    name: ⏮️ Rollback Deployment
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    environment:
+      name: production
+    steps:
+      - name: 📥 Checkout previous version
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.version || 'HEAD~1' }}
+
+      - name: 🔄 Rollback to previous version
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          publish_branch: gh-pages
+
+      - name: 📢 Notify rollback
+        run: |
+          echo "⏮️ Rolled back to version: ${{ github.event.inputs.version || 'previous' }}"
