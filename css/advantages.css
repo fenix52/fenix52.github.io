@@ -1,0 +1,109 @@
+/* Advantages Section Styles */
+
+.advantages__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-2xl);
+  margin-bottom: var(--spacing-5xl);
+}
+
+@media (min-width: 640px) {
+  .advantages__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .advantages__grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-3xl);
+  }
+}
+
+.advantage-card {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  background-color: var(--color-white);
+  border-radius: var(--radius-xl);
+  transition: all var(--transition-base);
+}
+
+.advantage-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+}
+
+.advantage-card__icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+  border-radius: var(--radius-xl);
+  color: var(--color-white);
+  transition: transform var(--transition-base);
+}
+
+.advantage-card:hover .advantage-card__icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.advantage-card__title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.advantage-card__description {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.advantages__stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-2xl);
+  padding: var(--spacing-4xl) var(--spacing-3xl);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-2xl);
+}
+
+@media (min-width: 768px) {
+  .advantages__stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.stat-card {
+  text-align: center;
+  color: var(--color-white);
+}
+
+.stat-card__number {
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  margin-bottom: var(--spacing-sm);
+}
+
+@media (max-width: 640px) {
+  .stat-card__number {
+    font-size: var(--font-size-4xl);
+  }
+}
+
+.stat-card__label {
+  font-size: var(--font-size-base);
+  opacity: 0.9;
+}
+
+@media (max-width: 640px) {
+  .stat-card__label {
+    font-size: var(--font-size-sm);
+  }
+}
