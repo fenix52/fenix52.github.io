@@ -2,10 +2,11 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="description" content="Арзамас Декор - профессиональная отделка и утепление фасадов. Гибкий кирпич, термопанели, качественные материалы. Опыт 10+ лет. Консультация и расчет онлайн! Звоните: +7 (995) 776-75-75">
     <meta name="keywords" content="отделка фасадов Арзамас, утепление фасадов, гибкий кирпич, термопанели, облицовка дома, фасадные работы, Арзамас Декор, отделка под ключ">
     <meta name="author" content="Арзамас Декор">
+    <meta name="theme-color" content="#E74C3C">
     
     <!-- Open Graph -->
     <meta property="og:title" content="Арзамас Декор - Профессиональная отделка фасадов">
@@ -21,7 +22,11 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Preload CSS -->
+    <link rel="preload" href="/css/main.css" as="style">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     
     <!-- CSS -->
     <link rel="stylesheet" href="/css/reset.css">
@@ -30,26 +35,16 @@
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/hero.css">
     <link rel="stylesheet" href="/css/services.css">
-    <link rel="stylesheet" href="/css/calculator.css">
-    <link rel="stylesheet" href="/css/projects.css">
-    <link rel="stylesheet" href="/css/advantages.css">
-    <link rel="stylesheet" href="/css/contacts.css">
     <link rel="stylesheet" href="/css/footer.css">
     
     <title>Арзамас Декор - Отделка и Утепление Фасадов | Гибкий Кирпич и Термопанели</title>
 </head>
 <body>
-    <!-- Preloader -->
-    <div class="preloader" id="preloader">
-        <div class="preloader__spinner"></div>
-    </div>
-
     <!-- Header -->
     <header class="header" id="header">
         <div class="container">
             <div class="header__wrapper">
-                <!-- Logo -->
-                <a href="#" class="header__logo">
+                <a href="/" class="header__logo">
                     <svg class="header__logo-img" width="48" height="48" viewBox="0 0 48 48" fill="none">
                         <rect width="48" height="48" rx="12" fill="#E74C3C"/>
                         <path d="M14 24L24 14L34 24M24 16V34" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
@@ -57,39 +52,19 @@
                     <span class="header__logo-text">Арзамас Декор</span>
                 </a>
 
-                <!-- Navigation -->
                 <nav class="header__nav" id="nav">
                     <ul class="header__menu">
-                        <li class="header__menu-item">
-                            <a href="#hero" class="header__menu-link active">Главная</a>
-                        </li>
-                        <li class="header__menu-item">
-                            <a href="#services" class="header__menu-link">Услуги</a>
-                        </li>
-                        <li class="header__menu-item">
-                            <a href="#calculator" class="header__menu-link">Калькулятор</a>
-                        </li>
-                        <li class="header__menu-item">
-                            <a href="#projects" class="header__menu-link">Портфолио</a>
-                        </li>
-                        <li class="header__menu-item">
-                            <a href="#advantages" class="header__menu-link">О нас</a>
-                        </li>
-                        <li class="header__menu-item">
-                            <a href="#contacts" class="header__menu-link">Контакты</a>
-                        </li>
+                        <li class="header__menu-item"><a href="#hero" class="header__menu-link active">Главная</a></li>
+                        <li class="header__menu-item"><a href="#services" class="header__menu-link">Услуги</a></li>
+                        <li class="header__menu-item"><a href="/calculator.html" class="header__menu-link">Калькулятор</a></li>
+                        <li class="header__menu-item"><a href="#contacts" class="header__menu-link">Контакты</a></li>
                     </ul>
                 </nav>
 
-                <!-- Contacts -->
                 <div class="header__contacts">
                     <a href="tel:+79957767575" class="header__phone">+7 (995) 776-75-75</a>
-                    <button class="btn btn--primary header__cta" data-modal="consultationModal">
-                        Заказать звонок
-                    </button>
                 </div>
 
-                <!-- Burger Menu -->
                 <button class="header__burger" id="burger" aria-label="Меню">
                     <span></span>
                     <span></span>
@@ -102,23 +77,23 @@
     <!-- Hero Section -->
     <section class="hero section" id="hero">
         <div class="hero__background">
-            <img src="/images/hero/hero-bg.jpg" alt="Отделка фасадов" class="hero__bg-img">
+            <img data-src="/images/hero/hero-bg.jpg" alt="Отделка фасадов" class="hero__bg-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'%3E%3Crect fill='%23f0f0f0' width='1920' height='1080'/%3E%3C/svg%3E">
             <div class="hero__overlay"></div>
         </div>
 
         <div class="container">
             <div class="hero__content">
-                <h1 class="hero__title" data-aos="fade-up">
+                <h1 class="hero__title">
                     Профессиональная отделка <br>
                     и утепление <span class="text-accent">фасадов</span>
                 </h1>
 
-                <p class="hero__subtitle" data-aos="fade-up" data-aos-delay="200">
+                <p class="hero__subtitle">
                     Превратим ваш дом в произведение искусства! Современные материалы, 
                     опытные мастера и гарантия качества до 10 лет.
                 </p>
 
-                <div class="hero__features" data-aos="fade-up" data-aos-delay="400">
+                <div class="hero__features">
                     <div class="hero__feature">
                         <div class="hero__feature-icon">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -149,20 +124,20 @@
                     </div>
                 </div>
 
-                <div class="hero__actions" data-aos="fade-up" data-aos-delay="600">
-                    <a href="#calculator" class="btn btn--primary btn--lg">
+                <div class="hero__actions">
+                    <a href="/calculator.html" class="btn btn--primary btn--lg">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <rect x="4" y="2" width="16" height="20" rx="2" stroke-width="2"/>
                             <path d="M8 6h8M8 10h8M8 14h4" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                         Рассчитать стоимость
                     </a>
-                    <button class="btn btn--outline btn--lg" data-modal="consultationModal">
+                    <a href="tel:+79957767575" class="btn btn--outline btn--lg">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke-width="2"/>
                         </svg>
-                        Бесплатная консультация
-                    </button>
+                        Позвонить нам
+                    </a>
                 </div>
             </div>
         </div>
@@ -178,7 +153,7 @@
     <!-- Services Section -->
     <section class="services section" id="services">
         <div class="container">
-            <div class="section__header" data-aos="fade-up">
+            <div class="section__header">
                 <h2 class="section__title">Наши услуги</h2>
                 <p class="section__subtitle">
                     Предлагаем комплексные решения для отделки и утепления вашего дома
@@ -186,10 +161,10 @@
             </div>
 
             <div class="services__grid">
-                <!-- Service Card 1: Гибкий кирпич -->
-                <div class="service-card" data-aos="fade-up" data-aos-delay="100">
+                <!-- Service Card 1 -->
+                <div class="service-card">
                     <div class="service-card__image">
-                        <img src="/images/services/brick.jpg" alt="Гибкий кирпич" data-src="/images/services/brick.jpg">
+                        <img data-src="/images/services/brick.jpg" alt="Гибкий кирпич" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect fill='%23f0f0f0' width='800' height='600'/%3E%3C/svg%3E">
                         <span class="service-card__badge service-card__badge--new">Популярно</span>
                     </div>
                     <div class="service-card__content">
@@ -206,17 +181,15 @@
                         </ul>
                         <div class="service-card__footer">
                             <span class="service-card__price">от 2 000 ₽/м²</span>
-                            <button class="btn btn--primary btn--sm" data-modal="serviceModal" data-service="brick">
-                                Подробнее
-                            </button>
+                            <a href="/calculator.html" class="btn btn--primary btn--sm">Рассчитать</a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Service Card 2: Термопанели -->
-                <div class="service-card" data-aos="fade-up" data-aos-delay="200">
+                <!-- Service Card 2 -->
+                <div class="service-card">
                     <div class="service-card__image">
-                        <img src="/images/services/thermopanel.jpg" alt="Термопанели" data-src="/images/services/thermopanel.jpg">
+                        <img data-src="/images/services/thermopanel.jpg" alt="Термопанели" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect fill='%23f0f0f0' width='800' height='600'/%3E%3C/svg%3E">
                         <span class="service-card__badge">Выгодно</span>
                     </div>
                     <div class="service-card__content">
@@ -233,17 +206,15 @@
                         </ul>
                         <div class="service-card__footer">
                             <span class="service-card__price">от 2 800 ₽/м²</span>
-                            <button class="btn btn--primary btn--sm" data-modal="serviceModal" data-service="thermopanel">
-                                Подробнее
-                            </button>
+                            <a href="/calculator.html" class="btn btn--primary btn--sm">Рассчитать</a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Service Card 3: Утепление фасада -->
-                <div class="service-card" data-aos="fade-up" data-aos-delay="300">
+                <!-- Service Card 3 -->
+                <div class="service-card">
                     <div class="service-card__image">
-                        <img src="/images/services/insulation.jpg" alt="Утепление фасада" data-src="/images/services/insulation.jpg">
+                        <img data-src="/images/services/insulation.jpg" alt="Утепление фасада" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect fill='%23f0f0f0' width='800' height='600'/%3E%3C/svg%3E">
                     </div>
                     <div class="service-card__content">
                         <h3 class="service-card__title">Утепление фасада</h3>
@@ -259,16 +230,14 @@
                         </ul>
                         <div class="service-card__footer">
                             <span class="service-card__price">от 1 400 ₽/м²</span>
-                            <button class="btn btn--primary btn--sm" data-modal="serviceModal" data-service="insulation">
-                                Подробнее
-                            </button>
+                            <a href="/calculator.html" class="btn btn--primary btn--sm">Рассчитать</a>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- CTA Banner -->
-            <div class="services__cta" data-aos="fade-up">
+            <div class="services__cta">
                 <div class="cta-banner">
                     <div class="cta-banner__content">
                         <h3 class="cta-banner__title">Не нашли подходящую услугу?</h3>
@@ -276,12 +245,121 @@
                             Свяжитесь с нами, и мы подберем индивидуальное решение для вашего проекта
                         </p>
                     </div>
-                    <button class="btn btn--lg" data-modal="consultationModal">
-                        Получить консультацию
-                    </button>
+                    <a href="tel:+79957767575" class="btn btn--lg">Позвонить нам</a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ... REMAINING HTML CONTENT CONTINUES IN NEXT MESSAGE ... -->
+    <!-- Contacts Section -->
+    <section class="contacts section" id="contacts">
+        <div class="container">
+            <div class="section__header">
+                <h2 class="section__title">Контакты</h2>
+                <p class="section__subtitle">Свяжитесь с нами удобным способом</p>
+            </div>
+
+            <div class="contacts__grid">
+                <div class="contacts__info">
+                    <div class="contact-item">
+                        <div class="contact-item__icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="contact-item__content">
+                            <h4>Телефон</h4>
+                            <a href="tel:+79957767575">+7 (995) 776-75-75</a>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-item__icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke-width="2"/>
+                                <path d="M22 6l-10 7L2 6" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="contact-item__content">
+                            <h4>Email</h4>
+                            <a href="mailto:info@arzamas-decor.ru">info@arzamas-decor.ru</a>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-item__icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke-width="2"/>
+                                <circle cx="12" cy="10" r="3" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="contact-item__content">
+                            <h4>Адрес</h4>
+                            <p>Арзамас, Нижегородская область</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-item__icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                                <path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="contact-item__content">
+                            <h4>Режим работы</h4>
+                            <p>Пн-Вс: 8:00 - 20:00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contacts__form">
+                    <h3>Оставьте заявку</h3>
+                    <p>Мы свяжемся с вами в течение 15 минут</p>
+                    
+                    <form class="form" id="contactForm">
+                        <div class="form-group">
+                            <input type="text" name="name" class="form-input" placeholder="Ваше имя" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" name="phone" class="form-input" placeholder="+7 (___) ___-__-__" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea name="message" class="form-input" placeholder="Ваше сообщение" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn--primary btn--lg">Отправить заявку</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__bottom">
+                <div class="footer__copyright">
+                    <p>&copy; 2024-2025 Арзамас Декор. Все права защищены.</p>
+                </div>
+                <div class="footer__links">
+                    <a href="/calculator.html">Калькулятор</a>
+                    <a href="#services">Услуги</a>
+                    <a href="#contacts">Контакты</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/lazy-load.js" defer></script>
+    <script src="/js/header.js" defer></script>
+    <script defer>
+        // Simple form handler
+        document.getElementById('contactForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Спасибо! Мы свяжемся с вами в ближайшее время.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>
