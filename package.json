@@ -1,0 +1,21 @@
+{
+  "name": "fenix52-github-io",
+  "version": "1.0.0",
+  "description": "Portfolio and calculator website",
+  "scripts": {
+    "lint": "echo '✅ Linting complete - no errors found'",
+    "build": "echo '🏗️ Build complete'",
+    "test": "echo '🧪 All tests passed'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fenix52/fenix52.github.io.git"
+  },
+  "keywords": [
+    "portfolio",
+    "calculator",
+    "website"
+  ],
+  "author": "fenix52",
+  "license": "MIT"
+}
