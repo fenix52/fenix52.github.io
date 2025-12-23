@@ -1,240 +1,168 @@
-// Forms functionality
+// Form Handling
 
-class Forms {
-  constructor() {
-    this.forms = document.querySelectorAll('form[data-form]');
-    this.init();
-  }
-
-  init() {
-    this.forms.forEach(form => {
-      this.setupForm(form);
-    });
-  }
-
-  setupForm(form) {
-    const inputs = form.querySelectorAll('input, textarea');
-    inputs.forEach(input => {
-      input.addEventListener('blur', () => this.validateField(input));
-      input.addEventListener('input', () => this.clearError(input));
-    });
-
-    const phoneInputs = form.querySelectorAll('input[type="tel"]');
-    phoneInputs.forEach(input => {
-      input.addEventListener('input', (e) => {
-        e.target.value = this.formatPhoneInput(e.target.value);
-      });
-    });
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      this.handleSubmit(form);
-    });
-  }
-
-  validateField(field) {
-    const value = field.value.trim();
-    const type = field.type;
-    const required = field.required;
-
-    this.clearError(field);
-
-    if (required && !value) {
-      this.showError(field, 'Это поле обязательно для заполнения');
-      return false;
+class FormHandler {
+    constructor() {
+        this.forms = document.querySelectorAll('[data-form]');
+        this.init();
     }
-
-    if (type === 'email' && value && !validateEmail(value)) {
-      this.showError(field, 'Введите корректный email');
-      return false;
-    }
-
-    if (type === 'tel' && value && !validatePhone(value)) {
-      this.showError(field, 'Введите корректный номер телефона');
-      return false;
-    }
-
-    const minLength = field.getAttribute('minlength');
-    if (minLength && value.length < minLength) {
-      this.showError(field, `Минимальная длина: ${minLength} символов`);
-      return false;
-    }
-
-    return true;
-  }
-
-  showError(field, message) {
-    field.classList.add('error');
     
-    const oldError = field.parentElement.querySelector('.field-error');
-    if (oldError) {
-      oldError.remove();
+    init() {
+        this.forms.forEach(form => {
+            // Phone input formatting
+            const phoneInputs = form.querySelectorAll('input[type="tel"]');
+            phoneInputs.forEach(input => {
+                input.addEventListener('input', (e) => this.formatPhoneInput(e.target));
+            });
+            
+            // Form submission
+            form.addEventListener('submit', (e) => this.handleSubmit(e, form));
+        });
     }
-
-    const errorElement = document.createElement('span');
-    errorElement.className = 'field-error';
-    errorElement.textContent = message;
-    errorElement.style.color = 'var(--color-error)';
-    errorElement.style.fontSize = 'var(--font-size-sm)';
-    errorElement.style.marginTop = 'var(--spacing-xs)';
-    errorElement.style.display = 'block';
     
-    field.parentElement.appendChild(errorElement);
-  }
-
-  clearError(field) {
-    field.classList.remove('error');
-    const error = field.parentElement.querySelector('.field-error');
-    if (error) {
-      error.remove();
+    formatPhoneInput(input) {
+        let value = input.value.replace(/\D/g, '');
+        
+        // Limit to 11 digits
+        if (value.length > 11) {
+            value = value.slice(0, 11);
+        }
+        
+        // Format: +7 (XXX) XXX-XX-XX
+        if (value.length > 0) {
+            if (value[0] === '8' || value[0] === '7') {
+                value = '7' + value.slice(1);
+            }
+            
+            let formatted = '+7';
+            if (value.length > 1) {
+                formatted += ' (' + value.slice(1, 4);
+            }
+            if (value.length >= 5) {
+                formatted += ') ' + value.slice(4, 7);
+            }
+            if (value.length >= 8) {
+                formatted += '-' + value.slice(7, 9);
+            }
+            if (value.length >= 10) {
+                formatted += '-' + value.slice(9, 11);
+            }
+            
+            input.value = formatted;
+        }
     }
-  }
-
-  formatPhoneInput(value) {
-    const cleaned = value.replace(/\D/g, '');
-    let formatted = '';
-
-    if (cleaned.length > 0) {
-      formatted = '+7';
-      if (cleaned.length > 1) {
-        formatted += ' (' + cleaned.substring(1, 4);
-      }
-      if (cleaned.length >= 5) {
-        formatted += ') ' + cleaned.substring(4, 7);
-      }
-      if (cleaned.length >= 8) {
-        formatted += '-' + cleaned.substring(7, 9);
-      }
-      if (cleaned.length >= 10) {
-        formatted += '-' + cleaned.substring(9, 11);
-      }
+    
+    async handleSubmit(e, form) {
+        e.preventDefault();
+        
+        // Validate form
+        if (!this.validateForm(form)) {
+            return;
+        }
+        
+        // Get form data
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        const formType = form.dataset.form;
+        
+        // Add form type
+        data.form_type = formType;
+        data.timestamp = new Date().toISOString();
+        
+        // Disable submit button
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправляем...';
+        }
+        
+        try {
+            // Send data (replace with your actual endpoint)
+            await this.sendFormData(data);
+            
+            // Show success
+            this.showSuccess();
+            
+            // Reset form
+            form.reset();
+            
+        } catch (error) {
+            console.error('Form submission error:', error);
+            alert('Произошла ошибка. Пожалуйста, попробуйте позже.');
+        } finally {
+            // Re-enable submit button
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить заявку';
+            }
+        }
     }
-
-    return formatted;
-  }
-
-  validateForm(form) {
-    const fields = form.querySelectorAll('input[required], textarea[required]');
-    let isValid = true;
-
-    fields.forEach(field => {
-      if (!this.validateField(field)) {
-        isValid = false;
-      }
-    });
-
-    const agreementCheckbox = form.querySelector('input[name="agreement"]');
-    if (agreementCheckbox && !agreementCheckbox.checked) {
-      this.showNotification('Необходимо согласие на обработку персональных данных', 'error');
-      isValid = false;
+    
+    validateForm(form) {
+        const inputs = form.querySelectorAll('[required]');
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                this.showError(input, 'Это поле обязательно');
+                isValid = false;
+            } else if (input.type === 'email' && !window.utils.validateEmail(input.value)) {
+                this.showError(input, 'Неверный формат email');
+                isValid = false;
+            } else if (input.type === 'tel' && !window.utils.validatePhone(input.value)) {
+                this.showError(input, 'Неверный формат телефона');
+                isValid = false;
+            } else {
+                this.clearError(input);
+            }
+        });
+        
+        return isValid;
     }
-
-    return isValid;
-  }
-
-  async handleSubmit(form) {
-    if (!this.validateForm(form)) {
-      return;
+    
+    showError(input, message) {
+        input.style.borderColor = 'var(--color-error)';
+        
+        // Remove existing error
+        const existingError = input.parentElement.querySelector('.form__error');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Add new error
+        const error = document.createElement('span');
+        error.className = 'form__error';
+        error.textContent = message;
+        error.style.cssText = 'color: var(--color-error); font-size: 0.875rem; margin-top: 0.25rem; display: block;';
+        input.parentElement.appendChild(error);
     }
-
-    const formType = form.dataset.form;
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-
-    const submitButton = form.querySelector('button[type="submit"]');
-    const originalText = submitButton.textContent;
-    submitButton.disabled = true;
-    submitButton.textContent = 'Отправка...';
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      this.saveFormData(formType, data);
-
-      this.showNotification('Спасибо! Ваша заявка принята. Мы свяжемся с вами в ближайшее время.', 'success');
-      form.reset();
-      
-      const modal = form.closest('.modal');
-      if (modal && modalInstance) {
-        setTimeout(() => closeModal(), 2000);
-      }
-
-      this.trackFormSubmit(formType, data);
-
-    } catch (error) {
-      console.error('Form submission error:', error);
-      this.showNotification('Произошла ошибка. Пожалуйста, попробуйте позже или позвоните нам.', 'error');
-    } finally {
-      submitButton.disabled = false;
-      submitButton.textContent = originalText;
+    
+    clearError(input) {
+        input.style.borderColor = '';
+        const error = input.parentElement.querySelector('.form__error');
+        if (error) {
+            error.remove();
+        }
     }
-  }
-
-  saveFormData(formType, data) {
-    const submissions = getFromLocalStorage('formSubmissions', []);
-    submissions.push({
-      type: formType,
-      data: data,
-      timestamp: new Date().toISOString()
-    });
-    saveToLocalStorage('formSubmissions', submissions);
-  }
-
-  trackFormSubmit(formType, data) {
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'form_submit', {
-        event_category: 'Form',
-        event_label: formType
-      });
+    
+    async sendFormData(data) {
+        // Replace with your actual API endpoint
+        console.log('Sending form data:', data);
+        
+        // Simulate API call
+        return new Promise((resolve) => {
+            setTimeout(() => resolve({ success: true }), 1000);
+        });
     }
-
-    if (typeof ym !== 'undefined') {
-      ym(YANDEX_METRIKA_ID, 'reachGoal', `form_${formType}`);
+    
+    showSuccess() {
+        const successModal = document.getElementById('successModal');
+        if (successModal && window.modalManager) {
+            window.modalManager.openModal('successModal');
+        }
     }
-
-    console.log('Form submitted:', formType, data);
-  }
-
-  showNotification(message, type = 'info') {
-    const oldNotifications = document.querySelectorAll('.notification');
-    oldNotifications.forEach(n => n.remove());
-
-    const notification = document.createElement('div');
-    notification.className = `notification notification--${type}`;
-    notification.innerHTML = `
-      <div class="notification__content">
-        <span>${message}</span>
-        <button class="notification__close">&times;</button>
-      </div>
-    `;
-
-    Object.assign(notification.style, {
-      position: 'fixed',
-      top: '20px',
-      right: '20px',
-      padding: '16px 24px',
-      background: type === 'success' ? 'var(--color-success)' : 
-                  type === 'error' ? 'var(--color-error)' : 'var(--color-info)',
-      color: 'white',
-      borderRadius: 'var(--radius-lg)',
-      boxShadow: 'var(--shadow-xl)',
-      zIndex: '10000',
-      maxWidth: '400px',
-      animation: 'slideInDown 0.3s ease-out'
-    });
-
-    document.body.appendChild(notification);
-
-    const closeBtn = notification.querySelector('.notification__close');
-    closeBtn.addEventListener('click', () => notification.remove());
-
-    setTimeout(() => {
-      notification.style.animation = 'fadeOut 0.3s ease-out';
-      setTimeout(() => notification.remove(), 300);
-    }, 5000);
-  }
 }
 
+// Initialize form handler
 document.addEventListener('DOMContentLoaded', () => {
-  new Forms();
+    new FormHandler();
 });

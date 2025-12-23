@@ -1,131 +1,79 @@
-// Projects functionality
+// Projects Gallery and Filters
 
 class Projects {
-  constructor() {
-    this.filters = document.querySelectorAll('.projects__filter');
-    this.projectCards = document.querySelectorAll('.project-card');
-    this.currentFilter = 'all';
+    constructor() {
+        this.filters = document.querySelectorAll('.projects__filter');
+        this.projects = document.querySelectorAll('.project-card');
+        this.loadMoreBtn = document.getElementById('loadMoreProjects');
+        this.sliders = document.querySelectorAll('.project-card__slider-input');
+        
+        this.init();
+    }
     
-    this.init();
-  }
-
-  init() {
-    if (!this.filters.length || !this.projectCards.length) return;
-
-    this.setupFilters();
-    this.setupBeforeAfterSliders();
-    this.setupLazyLoading();
-  }
-
-  setupFilters() {
-    this.filters.forEach(filter => {
-      filter.addEventListener('click', (e) => {
-        e.preventDefault();
-        const category = filter.dataset.filter;
-        this.filterProjects(category);
-        this.setActiveFilter(filter);
-      });
-    });
-  }
-
-  filterProjects(category) {
-    this.currentFilter = category;
-
-    this.projectCards.forEach((card, index) => {
-      const cardCategory = card.dataset.category;
-      
-      if (category === 'all' || cardCategory === category) {
-        setTimeout(() => {
-          card.style.display = 'block';
-          requestAnimationFrame(() => {
-            card.style.opacity = '1';
-            card.style.transform = 'scale(1)';
-          });
-        }, index * 50);
-      } else {
-        card.style.opacity = '0';
-        card.style.transform = 'scale(0.9)';
-        setTimeout(() => {
-          card.style.display = 'none';
-        }, 300);
-      }
-    });
-  }
-
-  setActiveFilter(activeFilter) {
-    this.filters.forEach(filter => {
-      filter.classList.remove('projects__filter--active');
-    });
-    activeFilter.classList.add('projects__filter--active');
-  }
-
-  setupBeforeAfterSliders() {
-    const sliders = document.querySelectorAll('.project-card__slider-input');
-    
-    sliders.forEach(slider => {
-      const card = slider.closest('.project-card');
-      const afterImage = card.querySelector('.project-card__img--after');
-      
-      if (!afterImage) return;
-
-      afterImage.style.clipPath = 'inset(0 50% 0 0)';
-
-      slider.addEventListener('input', (e) => {
-        const value = e.target.value;
-        afterImage.style.clipPath = `inset(0 ${100 - value}% 0 0)`;
-      });
-
-      if (isTouchDevice()) {
-        this.setupTouchSlider(slider, afterImage);
-      }
-    });
-  }
-
-  setupTouchSlider(slider, afterImage) {
-    const card = slider.closest('.project-card__before-after');
-    let isDragging = false;
-
-    card.addEventListener('touchstart', () => {
-      isDragging = true;
-    });
-
-    card.addEventListener('touchmove', (e) => {
-      if (!isDragging) return;
-      
-      const touch = e.touches[0];
-      const rect = card.getBoundingClientRect();
-      const x = touch.clientX - rect.left;
-      const percentage = (x / rect.width) * 100;
-      
-      if (percentage >= 0 && percentage <= 100) {
-        slider.value = percentage;
-        afterImage.style.clipPath = `inset(0 ${100 - percentage}% 0 0)`;
-      }
-    });
-
-    card.addEventListener('touchend', () => {
-      isDragging = false;
-    });
-  }
-
-  setupLazyLoading() {
-    const images = document.querySelectorAll('.project-card__img[data-src]');
-    
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          img.src = img.dataset.src;
-          img.removeAttribute('data-src');
-          observer.unobserve(img);
+    init() {
+        // Filter functionality
+        this.filters.forEach(filter => {
+            filter.addEventListener('click', () => this.filterProjects(filter));
+        });
+        
+        // Before/After sliders
+        this.sliders.forEach(slider => {
+            slider.addEventListener('input', (e) => this.updateSlider(e.target));
+        });
+        
+        // Load more functionality
+        if (this.loadMoreBtn) {
+            this.loadMoreBtn.addEventListener('click', () => this.loadMore());
         }
-      });
-    });
-
-    images.forEach(img => imageObserver.observe(img));
-  }
+    }
+    
+    filterProjects(activeFilter) {
+        const filterValue = activeFilter.dataset.filter;
+        
+        // Update active filter
+        this.filters.forEach(f => f.classList.remove('projects__filter--active'));
+        activeFilter.classList.add('projects__filter--active');
+        
+        // Filter projects
+        this.projects.forEach(project => {
+            const category = project.dataset.category;
+            
+            if (filterValue === 'all' || category === filterValue) {
+                project.style.display = 'block';
+                setTimeout(() => {
+                    project.style.opacity = '1';
+                    project.style.transform = 'translateY(0)';
+                }, 10);
+            } else {
+                project.style.opacity = '0';
+                project.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    project.style.display = 'none';
+                }, 300);
+            }
+        });
+    }
+    
+    updateSlider(slider) {
+        const value = slider.value;
+        const card = slider.closest('.project-card__before-after');
+        const afterImage = card.querySelector('.project-card__img--after');
+        
+        if (afterImage) {
+            afterImage.style.clipPath = `inset(0 ${100 - value}% 0 0)`;
+        }
+    }
+    
+    loadMore() {
+        // This would typically load more projects from an API
+        // For now, we'll just hide the button
+        if (this.loadMoreBtn) {
+            this.loadMoreBtn.style.display = 'none';
+        }
+    }
 }
 
+// Initialize projects
 document.addEventListener('DOMContentLoaded', () => {
-  new Projects();
+    new Projects();
 });

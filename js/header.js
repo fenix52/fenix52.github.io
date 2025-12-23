@@ -1,120 +1,108 @@
-// Header functionality
+// Header Navigation
 
 class Header {
-  constructor() {
-    this.header = document.getElementById('header');
-    this.burger = document.getElementById('burger');
-    this.nav = document.getElementById('nav');
-    this.menuLinks = document.querySelectorAll('.header__menu-link');
-    this.lastScroll = 0;
-    
-    this.init();
-  }
-
-  init() {
-    this.setupBurgerMenu();
-    this.setupScrollBehavior();
-    this.setupActiveLinks();
-    this.setupSmoothScroll();
-  }
-
-  setupBurgerMenu() {
-    if (!this.burger || !this.nav) return;
-
-    this.burger.addEventListener('click', () => {
-      this.toggleMenu();
-    });
-
-    this.menuLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        if (this.nav.classList.contains('active')) {
-          this.toggleMenu();
-        }
-      });
-    });
-
-    document.addEventListener('click', (e) => {
-      if (this.nav.classList.contains('active') && 
-          !this.nav.contains(e.target) && 
-          !this.burger.contains(e.target)) {
-        this.toggleMenu();
-      }
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.nav.classList.contains('active')) {
-        this.toggleMenu();
-      }
-    });
-  }
-
-  toggleMenu() {
-    this.burger.classList.toggle('active');
-    this.nav.classList.toggle('active');
-    document.body.style.overflow = this.nav.classList.contains('active') ? 'hidden' : '';
-  }
-
-  setupScrollBehavior() {
-    if (!this.header) return;
-
-    const handleScroll = throttle(() => {
-      const currentScroll = window.pageYOffset;
-
-      if (currentScroll > 100) {
-        this.header.classList.add('scrolled');
-      } else {
-        this.header.classList.remove('scrolled');
-      }
-
-      this.lastScroll = currentScroll;
-    }, 100);
-
-    window.addEventListener('scroll', handleScroll);
-  }
-
-  setupActiveLinks() {
-    const sections = document.querySelectorAll('section[id]');
-    
-    const handleScroll = throttle(() => {
-      const scrollY = window.pageYOffset;
-      const headerHeight = this.header?.offsetHeight || 0;
-
-      sections.forEach(section => {
-        const sectionTop = section.offsetTop - headerHeight - 100;
-        const sectionHeight = section.offsetHeight;
-        const sectionId = section.getAttribute('id');
-
-        if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
-          this.menuLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === `#${sectionId}`) {
-              link.classList.add('active');
-            }
-          });
-        }
-      });
-    }, 100);
-
-    window.addEventListener('scroll', handleScroll);
-  }
-
-  setupSmoothScroll() {
-    this.menuLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        const href = link.getAttribute('href');
+    constructor() {
+        this.header = document.getElementById('header');
+        this.burger = document.getElementById('burger');
+        this.nav = document.getElementById('nav');
+        this.menuLinks = document.querySelectorAll('.header__menu-link');
+        this.lastScrollTop = 0;
         
-        if (href.startsWith('#')) {
-          e.preventDefault();
-          const target = document.querySelector(href);
-          if (target) {
-            smoothScrollTo(target);
-          }
+        this.init();
+    }
+    
+    init() {
+        // Burger menu toggle
+        if (this.burger) {
+            this.burger.addEventListener('click', () => this.toggleMenu());
         }
-      });
-    });
-  }
+        
+        // Close menu on link click
+        this.menuLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    window.utils.smoothScrollTo(targetSection);
+                    this.closeMenu();
+                    this.updateActiveLink(link);
+                }
+            });
+        });
+        
+        // Scroll events
+        window.addEventListener('scroll', window.utils.throttle(() => {
+            this.handleScroll();
+            this.updateActiveOnScroll();
+        }, 100));
+        
+        // Close menu on outside click
+        document.addEventListener('click', (e) => {
+            if (!this.header.contains(e.target) && this.nav.classList.contains('active')) {
+                this.closeMenu();
+            }
+        });
+    }
+    
+    toggleMenu() {
+        this.burger.classList.toggle('active');
+        this.nav.classList.toggle('active');
+        
+        if (this.nav.classList.contains('active')) {
+            window.utils.lockBodyScroll();
+        } else {
+            window.utils.unlockBodyScroll();
+        }
+    }
+    
+    closeMenu() {
+        this.burger.classList.remove('active');
+        this.nav.classList.remove('active');
+        window.utils.unlockBodyScroll();
+    }
+    
+    handleScroll() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Add scrolled class
+        if (scrollTop > 50) {
+            this.header.classList.add('header--scrolled');
+        } else {
+            this.header.classList.remove('header--scrolled');
+        }
+        
+        this.lastScrollTop = scrollTop;
+    }
+    
+    updateActiveLink(activeLink) {
+        this.menuLinks.forEach(link => link.classList.remove('active'));
+        activeLink.classList.add('active');
+    }
+    
+    updateActiveOnScroll() {
+        const sections = document.querySelectorAll('.section');
+        const scrollPos = window.pageYOffset + this.header.offsetHeight + 100;
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+            const sectionId = section.getAttribute('id');
+            
+            if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                this.menuLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${sectionId}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }
 }
 
+// Initialize header
 document.addEventListener('DOMContentLoaded', () => {
-  new Header();
+    new Header();
 });
