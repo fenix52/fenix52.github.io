@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Калькулятор стоимости отделки фасада - Арзамас Декор. Рассчитайте стоимость работ онлайн за 1 минуту">
+    <title>Калькулятор стоимости | Арзамас Декор</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/variables.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    
+    <style>
+        /* Calculator Page Styles */
+        .calculator-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: calc(var(--header-height) + var(--spacing-3xl)) 0 var(--spacing-3xl);
+        }
+
+        .calculator-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg);
+        }
+
+        .calculator-header {
+            text-align: center;
+            margin-bottom: var(--spacing-3xl);
+        }
+
+        .calculator-header__title {
+            font-size: var(--font-size-4xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .calculator-header__subtitle {
+            font-size: var(--font-size-lg);
+            color: var(--color-text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .calculator-card {
+            background: white;
+            border-radius: var(--radius-2xl);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .calculator-progress {
+            height: 6px;
+            background: var(--color-bg-alt);
+            position: relative;
+        }
+
+        .calculator-progress__bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-success));
+            transition: width 0.4s ease;
+            width: 25%;
+        }
+
+        .calculator-body {
+            padding: var(--spacing-3xl);
+        }
+
+        .calculator-step {
+            display: none;
+        }
+
+        .calculator-step.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text);
+            margin-bottom: var(--spacing-xl);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--font-weight-bold);
+            font-size: var(--font-size-lg);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .option-card {
+            position: relative;
+            cursor: pointer;
+            border: 3px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            text-align: center;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .option-card:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(231,76,60,0.15);
+        }
+
+        .option-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .option-card input[type="radio"]:checked + .option-content {
+            color: var(--color-primary);
+        }
+
+        .option-card input[type="radio"]:checked ~ .option-checkmark {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .option-card.selected {
+            border-color: var(--color-primary);
+            background: linear-gradient(135deg, rgba(231,76,60,0.05), rgba(231,76,60,0.02));
+        }
+
+        .option-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto var(--spacing-md);
+            color: var(--color-primary);
+        }
+
+        .option-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .option-price {
+            font-size: var(--font-size-base);
+            color: var(--color-text-light);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .option-checkmark {
+            position: absolute;
+            top: var(--spacing-md);
+            right: var(--spacing-md);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--color-success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+
+        .option-checkmark svg {
+            width: 16px;
+            height: 16px;
+            stroke: white;
+            stroke-width: 3;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .form-label {
+            display: block;
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-text);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--spacing-md) var(--spacing-lg);
+            font-size: var(--font-size-lg);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 4px rgba(231,76,60,0.1);
+        }
+
+        .form-hint {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-light);
+            margin-top: var(--spacing-xs);
+        }
+
+        .quick-buttons {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .quick-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .checkbox-list {
+            display: grid;
+            gap: var(--spacing-md);
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-lg);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-item:hover {
+            border-color: var(--color-primary);
+            background: rgba(231,76,60,0.02);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            margin-right: var(--spacing-md);
+            cursor: pointer;
+        }
+
+        .checkbox-item.checked {
+            border-color: var(--color-primary);
+            background: rgba(231,76,60,0.05);
+        }
+
+        .checkbox-content {
+            flex: 1;
+        }
+
+        .checkbox-title {
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .checkbox-price {
+            color: var(--color-primary);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+            color: white;
+            padding: var(--spacing-3xl);
+            border-radius: var(--radius-xl);
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .result-label {
+            font-size: var(--font-size-lg);
+            opacity: 0.9;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .result-amount {
+            font-size: 3.5rem;
+            font-weight: var(--font-weight-bold);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .result-note {
+            font-size: var(--font-size-sm);
+            opacity: 0.8;
+        }
+
+        .breakdown {
+            background: var(--color-bg-alt);
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+            font-weight: var(--font-weight-bold);
+            font-size: var(--font-size-lg);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-2xl);
+        }
+
+        .nav-buttons .btn {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-page {
+                padding: calc(var(--header-height) + var(--spacing-xl)) 0 var(--spacing-xl);
+            }
+
+            .calculator-body {
+                padding: var(--spacing-xl);
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .result-amount {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <div class="header__wrapper">
+                <a href="/" class="header__logo">
+                    <svg class="header__logo-img" width="48" height="48" viewBox="0 0 48 48" fill="none">
+                        <rect width="48" height="48" rx="12" fill="#E74C3C"/>
+                        <path d="M14 24L24 14L34 24M24 16V34" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="header__logo-text">Арзамас Декор</span>
+                </a>
+
+                <nav class="header__nav" id="nav">
+                    <ul class="header__menu">
+                        <li class="header__menu-item">
+                            <a href="/#hero" class="header__menu-link">Главная</a>
+                        </li>
+                        <li class="header__menu-item">
+                            <a href="/#services" class="header__menu-link">Услуги</a>
+                        </li>
+                        <li class="header__menu-item">
+                            <a href="/calculator.html" class="header__menu-link active">Калькулятор</a>
+                        </li>
+                        <li class="header__menu-item">
+                            <a href="/#projects" class="header__menu-link">Портфолио</a>
+                        </li>
+                        <li class="header__menu-item">
+                            <a href="/#advantages" class="header__menu-link">О нас</a>
+                        </li>
+                        <li class="header__menu-item">
+                            <a href="/#contacts" class="header__menu-link">Контакты</a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <div class="header__contacts">
+                    <a href="tel:+79957767575" class="header__phone">+7 (995) 776-75-75</a>
+                </div>
+
+                <button class="header__burger" id="burger" aria-label="Меню">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Calculator Page -->
+    <div class="calculator-page">
+        <div class="calculator-container">
+            <div class="calculator-header">
+                <h1 class="calculator-header__title">📊 Калькулятор стоимости</h1>
+                <p class="calculator-header__subtitle">
+                    Рассчитайте стоимость отделки фасада за 4 простых шага и получите скидку 10%
+                </p>
+            </div>
+
+            <div class="calculator-card">
+                <div class="calculator-progress">
+                    <div class="calculator-progress__bar" id="progressBar"></div>
+                </div>
+
+                <div class="calculator-body">
+                    <form id="calculatorForm">
+                        <!-- Step 1: Service Selection -->
+                        <div class="calculator-step active" data-step="1">
+                            <h2 class="step-title">
+                                <span class="step-number">1</span>
+                                Выберите услугу
+                            </h2>
+
+                            <div class="options-grid">
+                                <label class="option-card">
+                                    <input type="radio" name="service" value="brick" data-price="2000" required>
+                                    <div class="option-content">
+                                        <svg class="option-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor">
+                                            <rect x="8" y="12" width="48" height="10" rx="2" stroke-width="2"/>
+                                            <rect x="8" y="26" width="22" height="10" rx="2" stroke-width="2"/>
+                                            <rect x="34" y="26" width="22" height="10" rx="2" stroke-width="2"/>
+                                            <rect x="8" y="40" width="48" height="10" rx="2" stroke-width="2"/>
+                                        </svg>
+                                        <div class="option-title">Гибкий кирпич</div>
+                                        <div class="option-price">от 2 000 ₽/м²</div>
+                                    </div>
+                                    <div class="option-checkmark">
+                                        <svg viewBox="0 0 24 24" fill="none">
+                                            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </label>
+
+                                <label class="option-card">
+                                    <input type="radio" name="service" value="thermopanel" data-price="2800" required>
+                                    <div class="option-content">
+                                        <svg class="option-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor">
+                                            <rect x="12" y="12" width="40" height="40" rx="3" stroke-width="2"/>
+                                            <path d="M20 20h24M20 28h24M20 36h24M20 44h16" stroke-width="2" stroke-linecap="round"/>
+                                        </svg>
+                                        <div class="option-title">Термопанели</div>
+                                        <div class="option-price">от 2 800 ₽/м²</div>
+                                    </div>
+                                    <div class="option-checkmark">
+                                        <svg viewBox="0 0 24 24" fill="none">
+                                            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </label>
+
+                                <label class="option-card">
+                                    <input type="radio" name="service" value="insulation" data-price="1400" required>
+                                    <div class="option-content">
+                                        <svg class="option-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor">
+                                            <path d="M16 32h32M16 24h32M16 40h32" stroke-width="2" stroke-linecap="round"/>
+                                            <rect x="12" y="16" width="40" height="32" rx="3" stroke-width="2"/>
+                                        </svg>
+                                        <div class="option-title">Утепление</div>
+                                        <div class="option-price">от 1 400 ₽/м²</div>
+                                    </div>
+                                    <div class="option-checkmark">
+                                        <svg viewBox="0 0 24 24" fill="none">
+                                            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="nav-buttons">
+                                <button type="button" class="btn btn--primary btn--lg" onclick="nextStep(2)">
+                                    Далее →
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Area -->
+                        <div class="calculator-step" data-step="2">
+                            <h2 class="step-title">
+                                <span class="step-number">2</span>
+                                Укажите площадь
+                            </h2>
+
+                            <div class="form-group">
+                                <label class="form-label">Площадь фасада (м²)</label>
+                                <input type="number" name="area" class="form-input" placeholder="Например: 100" min="10" max="1000" required>
+                                <p class="form-hint">Не знаете точную площадь? Наш специалист рассчитает бесплатно</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Или выберите стандартный размер:</label>
+                                <div class="quick-buttons">
+                                    <button type="button" class="quick-btn" onclick="setArea(50)">50 м²</button>
+                                    <button type="button" class="quick-btn" onclick="setArea(100)">100 м²</button>
+                                    <button type="button" class="quick-btn" onclick="setArea(150)">150 м²</button>
+                                    <button type="button" class="quick-btn" onclick="setArea(200)">200 м²</button>
+                                </div>
+                            </div>
+
+                            <div class="nav-buttons">
+                                <button type="button" class="btn btn--outline" onclick="prevStep(1)">
+                                    ← Назад
+                                </button>
+                                <button type="button" class="btn btn--primary btn--lg" onclick="nextStep(3)">
+                                    Далее →
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Additional Options -->
+                        <div class="calculator-step" data-step="3">
+                            <h2 class="step-title">
+                                <span class="step-number">3</span>
+                                Дополнительные опции
+                            </h2>
+
+                            <div class="checkbox-list">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="demolition" value="500">
+                                    <div class="checkbox-content">
+                                        <div class="checkbox-title">Демонтаж старой отделки</div>
+                                        <div class="checkbox-price">+500 ₽/м²</div>
+                                    </div>
+                                </label>
+
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="scaffolding" value="300">
+                                    <div class="checkbox-content">
+                                        <div class="checkbox-title">Установка лесов</div>
+                                        <div class="checkbox-price">+300 ₽/м²</div>
+                                    </div>
+                                </label>
+
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="delivery" value="200">
+                                    <div class="checkbox-content">
+                                        <div class="checkbox-title">Доставка материалов</div>
+                                        <div class="checkbox-price">+200 ₽/м²</div>
+                                    </div>
+                                </label>
+
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="warranty" value="100">
+                                    <div class="checkbox-content">
+                                        <div class="checkbox-title">Расширенная гарантия (10 лет)</div>
+                                        <div class="checkbox-price">+100 ₽/м²</div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="nav-buttons">
+                                <button type="button" class="btn btn--outline" onclick="prevStep(2)">
+                                    ← Назад
+                                </button>
+                                <button type="button" class="btn btn--primary btn--lg" onclick="nextStep(4)">
+                                    Рассчитать →
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Result -->
+                        <div class="calculator-step" data-step="4">
+                            <h2 class="step-title">
+                                <span class="step-number">4</span>
+                                Ваш расчёт
+                            </h2>
+
+                            <div class="result-card">
+                                <div class="result-label">Итоговая стоимость:</div>
+                                <div class="result-amount" id="totalAmount">0 ₽</div>
+                                <div class="result-note">* Окончательная стоимость определяется после замера</div>
+                            </div>
+
+                            <div class="breakdown" id="breakdown"></div>
+
+                            <div class="form-group">
+                                <label class="form-label">Ваше имя *</label>
+                                <input type="text" name="name" class="form-input" placeholder="Иван Иванов" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Телефон *</label>
+                                <input type="tel" name="phone" class="form-input" placeholder="+7 (___) ___-__-__" required>
+                            </div>
+
+                            <div class="nav-buttons">
+                                <button type="button" class="btn btn--outline" onclick="prevStep(3)">
+                                    ← Назад
+                                </button>
+                                <button type="submit" class="btn btn--success btn--lg">
+                                    🎉 Получить скидку 10%
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__bottom">
+                <div class="footer__copyright">
+                    <p>&copy; 2024-2025 Арзамас Декор. Все права защищены.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/js/header.js"></script>
+    <script>
+        // Calculator Logic
+        let currentStep = 1;
+        const formData = {
+            service: null,
+            servicePrice: 0,
+            area: 0,
+            options: []
+        };
+
+        // Step navigation
+        function nextStep(step) {
+            if (!validateStep(currentStep)) return;
+            
+            document.querySelector(`[data-step="${currentStep}"]`).classList.remove('active');
+            document.querySelector(`[data-step="${step}"]`).classList.add('active');
+            currentStep = step;
+            updateProgress();
+            
+            if (step === 4) {
+                calculateTotal();
+            }
+        }
+
+        function prevStep(step) {
+            document.querySelector(`[data-step="${currentStep}"]`).classList.remove('active');
+            document.querySelector(`[data-step="${step}"]`).classList.add('active');
+            currentStep = step;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progress = (currentStep / 4) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function validateStep(step) {
+            if (step === 1) {
+                const service = document.querySelector('input[name="service"]:checked');
+                if (!service) {
+                    alert('Выберите услугу');
+                    return false;
+                }
+                formData.service = service.value;
+                formData.servicePrice = parseInt(service.dataset.price);
+            }
+            
+            if (step === 2) {
+                const area = document.querySelector('input[name="area"]').value;
+                if (!area || area < 10) {
+                    alert('Укажите площадь (минимум 10 м²)');
+                    return false;
+                }
+                formData.area = parseInt(area);
+            }
+            
+            return true;
+        }
+
+        function setArea(value) {
+            document.querySelector('input[name="area"]').value = value;
+        }
+
+        function calculateTotal() {
+            let total = formData.servicePrice * formData.area;
+            const breakdownHTML = [];
+            
+            breakdownHTML.push(`<div class="breakdown-item"><span>Основная услуга (${formData.area} м² × ${formData.servicePrice} ₽)</span><span>${(formData.servicePrice * formData.area).toLocaleString()} ₽</span></div>`);
+            
+            // Add checked options
+            document.querySelectorAll('.checkbox-item input:checked').forEach(checkbox => {
+                const price = parseInt(checkbox.value);
+                const optionCost = price * formData.area;
+                total += optionCost;
+                const label = checkbox.parentElement.querySelector('.checkbox-title').textContent;
+                breakdownHTML.push(`<div class="breakdown-item"><span>${label}</span><span>+${optionCost.toLocaleString()} ₽</span></div>`);
+            });
+            
+            breakdownHTML.push(`<div class="breakdown-item"><span>Итого:</span><span>${total.toLocaleString()} ₽</span></div>`);
+            
+            document.getElementById('totalAmount').textContent = total.toLocaleString() + ' ₽';
+            document.getElementById('breakdown').innerHTML = breakdownHTML.join('');
+        }
+
+        // Form submission
+        document.getElementById('calculatorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.querySelector('input[name="name"]').value;
+            const phone = document.querySelector('input[name="phone"]').value;
+            
+            if (name && phone) {
+                alert('Спасибо! Мы свяжемся с вами в ближайшее время!');
+                // Here you can add AJAX call to send data to server
+            }
+        });
+
+        // Option card selection visual feedback
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        // Checkbox visual feedback
+        document.querySelectorAll('.checkbox-item input').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    this.closest('.checkbox-item').classList.add('checked');
+                } else {
+                    this.closest('.checkbox-item').classList.remove('checked');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
