@@ -1,453 +1,313 @@
-// ==========================================
-// ARЗАМАС ДЕКОР - MAIN JAVASCRIPT
-// Performance-optimized, vanilla JS
-// ==========================================
+/**
+ * Main JavaScript - Основная логика сайта
+ * Арзамас Декор
+ */
 
-// === UTILITY FUNCTIONS ===
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => document.querySelectorAll(selector);
-
-const debounce = (func, delay = 300) => {
-    let timeoutId;
-    return (...args) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => func(...args), delay);
-    };
+// Глобальные переменные
+const APP = {
+  isMobile: false,
+  isTablet: false,
+  isDesktop: false,
+  scrollPosition: 0,
+  isScrolling: false
 };
 
-const formatPrice = (price) => {
-    return new Intl.NumberFormat('ru-RU').format(price) + ' ₽';
-};
-
-// === NAVIGATION ===
-class Navigation {
-    constructor() {
-        this.header = $('#header');
-        this.burger = $('#burger');
-        this.navMenu = $('#navMenu');
-        this.navLinks = $$('.nav-link');
-        
-        this.init();
-    }
-    
-    init() {
-        this.burger?.addEventListener('click', () => this.toggleMenu());
-        this.navLinks.forEach(link => {
-            link.addEventListener('click', (e) => this.handleNavClick(e));
-        });
-        
-        window.addEventListener('scroll', debounce(() => this.handleScroll()));
-        this.handleScroll();
-    }
-    
-    toggleMenu() {
-        this.navMenu?.classList.toggle('active');
-    }
-    
-    handleNavClick(e) {
-        e.preventDefault();
-        const targetId = e.target.getAttribute('href');
-        this.scrollToSection(targetId.replace('#', ''));
-        this.navMenu?.classList.remove('active');
-        
-        this.navLinks.forEach(link => link.classList.remove('active'));
-        e.target.classList.add('active');
-    }
-    
-    scrollToSection(id) {
-        const element = $(`#${id}`);
-        if (element) {
-            const offsetTop = element.offsetTop - 70;
-            window.scrollTo({
-                top: offsetTop,
-                behavior: 'smooth'
-            });
-        }
-    }
-    
-    handleScroll() {
-        const scrollY = window.scrollY;
-        
-        if (scrollY > 100) {
-            this.header?.classList.add('scrolled');
-        } else {
-            this.header?.classList.remove('scrolled');
-        }
-    }
-}
-
-// === CALCULATOR ===
-class Calculator {
-    constructor() {
-        this.currentStep = 1;
-        this.totalSteps = 4;
-        this.data = {
-            serviceType: null,
-            servicePrice: 0,
-            area: 0,
-            options: [],
-            totalPrice: 0
-        };
-        
-        this.init();
-    }
-    
-    init() {
-        // Service type selection
-        $$('input[name="serviceType"]').forEach(input => {
-            input.addEventListener('change', (e) => {
-                this.data.serviceType = e.target.value;
-                this.data.servicePrice = parseInt(e.target.dataset.price);
-            });
-        });
-        
-        // Area input
-        $('#area')?.addEventListener('input', debounce((e) => {
-            this.data.area = parseInt(e.target.value) || 0;
-        }));
-        
-        // Options selection
-        $$('input[name="option"]').forEach(input => {
-            input.addEventListener('change', (e) => {
-                const price = parseInt(e.target.dataset.price);
-                const value = e.target.value;
-                
-                if (e.target.checked) {
-                    this.data.options.push({ value, price });
-                } else {
-                    this.data.options = this.data.options.filter(opt => opt.value !== value);
-                }
-            });
-        });
-    }
-    
-    nextStep() {
-        if (!this.validateStep()) {
-            return;
-        }
-        
-        if (this.currentStep < this.totalSteps) {
-            this.currentStep++;
-            this.updateUI();
-            
-            if (this.currentStep === this.totalSteps) {
-                this.calculateTotal();
-            }
-        }
-    }
-    
-    previousStep() {
-        if (this.currentStep > 1) {
-            this.currentStep--;
-            this.updateUI();
-        }
-    }
-    
-    validateStep() {
-        switch(this.currentStep) {
-            case 1:
-                if (!this.data.serviceType) {
-                    alert('Пожалуйста, выберите тип работ');
-                    return false;
-                }
-                break;
-            case 2:
-                if (!this.data.area || this.data.area <= 0) {
-                    alert('Пожалуйста, укажите площадь');
-                    return false;
-                }
-                break;
-        }
-        return true;
-    }
-    
-    updateUI() {
-        // Update steps indicator
-        $$('.step').forEach((step, index) => {
-            if (index + 1 === this.currentStep) {
-                step.classList.add('active');
-            } else {
-                step.classList.remove('active');
-            }
-        });
-        
-        // Show/hide step content
-        $$('.calculator-step').forEach((step, index) => {
-            if (index + 1 === this.currentStep) {
-                step.classList.remove('hidden');
-            } else {
-                step.classList.add('hidden');
-            }
-        });
-        
-        // Update navigation buttons
-        const prevBtn = $('#prevBtn');
-        const nextBtn = $('#nextBtn');
-        
-        if (this.currentStep === 1) {
-            prevBtn.style.display = 'none';
-        } else {
-            prevBtn.style.display = 'block';
-        }
-        
-        if (this.currentStep === this.totalSteps) {
-            nextBtn.style.display = 'none';
-        } else {
-            nextBtn.style.display = 'block';
-        }
-    }
-    
-    calculateTotal() {
-        const basePrice = this.data.servicePrice * this.data.area;
-        const optionsPrice = this.data.options.reduce((sum, opt) => sum + (opt.price * this.data.area), 0);
-        this.data.totalPrice = basePrice + optionsPrice;
-        
-        this.displayResult();
-    }
-    
-    displayResult() {
-        const serviceNames = {
-            'flexible-brick': 'Гибкий кирпич',
-            'thermo-panels': 'Термопанели',
-            'insulation': 'Утепление фасадов',
-            'turnkey': 'Под ключ'
-        };
-        
-        $('#resultService').textContent = serviceNames[this.data.serviceType] || '-';
-        $('#resultArea').textContent = this.data.area + ' м²';
-        $('#resultBase').textContent = formatPrice(this.data.servicePrice * this.data.area);
-        
-        if (this.data.options.length > 0) {
-            const optionsPrice = this.data.options.reduce((sum, opt) => sum + (opt.price * this.data.area), 0);
-            $('#resultOptions').textContent = formatPrice(optionsPrice);
-            $('#resultOptionsRow').style.display = 'flex';
-        } else {
-            $('#resultOptionsRow').style.display = 'none';
-        }
-        
-        $('#resultTotal').textContent = formatPrice(this.data.totalPrice);
-        
-        // Save calculation data for estimate
-        const calculationData = JSON.stringify(this.data);
-        $('#calculationData')?.setAttribute('value', calculationData);
-    }
-    
-    setArea(value) {
-        const areaInput = $('#area');
-        if (areaInput) {
-            areaInput.value = value;
-            this.data.area = value;
-        }
-    }
-}
-
-// === PORTFOLIO ===
-class Portfolio {
-    constructor() {
-        this.items = [
-            {
-                id: 1,
-                title: 'Частный дом в Арзамасе',
-                description: 'Отделка фасада гибким кирпичом',
-                category: 'flexible-brick',
-                icon: '🏡'
-            },
-            {
-                id: 2,
-                title: 'Коттедж с термопанелями',
-                description: 'Утепление и отделка термопанелями',
-                category: 'thermo-panels',
-                icon: '🏠'
-            },
-            {
-                id: 3,
-                title: 'Утепление многоэтажки',
-                description: 'Комплексное утепление пенопластом',
-                category: 'insulation',
-                icon: '🏢'
-            },
-            {
-                id: 4,
-                title: 'Дом под ключ',
-                description: 'Полный цикл работ по отделке',
-                category: 'flexible-brick',
-                icon: '🏘️'
-            },
-            {
-                id: 5,
-                title: 'Фасад офисного здания',
-                description: 'Современное решение с термопанелями',
-                category: 'thermo-panels',
-                icon: '🏛️'
-            },
-            {
-                id: 6,
-                title: 'Загородный дом',
-                description: 'Гибкий кирпич + утепление',
-                category: 'flexible-brick',
-                icon: '🏡'
-            }
-        ];
-        
-        this.currentFilter = 'all';
-        this.init();
-    }
-    
-    init() {
-        this.render();
-        
-        $$('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.filter(e.target.dataset.filter);
-                
-                $$('.filter-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-            });
-        });
-    }
-    
-    filter(category) {
-        this.currentFilter = category;
-        this.render();
-    }
-    
-    render() {
-        const container = $('#portfolioGrid');
-        if (!container) return;
-        
-        const filtered = this.currentFilter === 'all' 
-            ? this.items 
-            : this.items.filter(item => item.category === this.currentFilter);
-        
-        container.innerHTML = filtered.map(item => `
-            <div class="portfolio-item" data-category="${item.category}">
-                <div class="portfolio-image">${item.icon}</div>
-                <div class="portfolio-info">
-                    <h4 class="portfolio-title">${item.title}</h4>
-                    <p class="portfolio-description">${item.description}</p>
-                </div>
-            </div>
-        `).join('');
-    }
-}
-
-// === MODAL ===
-class Modal {
-    openModal(modalId) {
-        const modal = $(`#${modalId}`);
-        if (modal) {
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-    }
-    
-    closeModal(modalId) {
-        const modal = $(`#${modalId}`);
-        if (modal) {
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-    }
-}
-
-// === FORMS ===
-class Forms {
-    constructor() {
-        this.init();
-    }
-    
-    init() {
-        const forms = $$('form');
-        forms.forEach(form => {
-            form.addEventListener('submit', (e) => this.handleSubmit(e));
-        });
-    }
-    
-    handleSubmit(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(e.target);
-        const data = Object.fromEntries(formData.entries());
-        
-        console.log('Form submitted:', data);
-        
-        // Здесь должна быть отправка на сервер
-        // Для демо просто показываем уведомление
-        alert('Спасибо! Ваша заявка отправлена. Мы свяжемся с вами в ближайшее время.');
-        
-        e.target.reset();
-        
-        // Закрываем модальное окно если форма в модалке
-        const modal = e.target.closest('.modal');
-        if (modal) {
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-    }
-}
-
-// === GLOBAL FUNCTIONS (for inline onclick handlers) ===
-let calculator;
-let modal;
-
-function nextStep() {
-    calculator?.nextStep();
-}
-
-function previousStep() {
-    calculator?.previousStep();
-}
-
-function setArea(value) {
-    calculator?.setArea(value);
-}
-
-function openModal(modalId) {
-    modal?.openModal(modalId);
-}
-
-function closeModal(modalId) {
-    modal?.closeModal(modalId);
-}
-
-function scrollToSection(id) {
-    const nav = new Navigation();
-    nav.scrollToSection(id);
-}
-
-function showServiceDetails(service) {
-    const serviceInfo = {
-        'flexible-brick': {
-            title: 'Гибкий кирпич',
-            description: 'Инновационный материал для отделки фасадов и интерьеров. Создает эффект натуральной кирпичной кладки при значительно меньшем весе и стоимости монтажа.'
-        },
-        'thermo-panels': {
-            title: 'Термопанели',
-            description: 'Комплексное решение 2 в 1: утепление и декоративная отделка. Снижает теплопотери до 40% и создает привлекательный внешний вид.'
-        },
-        'insulation': {
-            title: 'Утепление фасадов',
-            description: 'Профессиональное утепление с использованием современных материалов. Обеспечивает комфорт в доме и снижение затрат на отопление.'
-        },
-        'turnkey': {
-            title: 'Проекты под ключ',
-            description: 'Полный цикл работ от проектирования до сдачи объекта. Индивидуальный подход и гарантия качества.'
-        }
-    };
-    
-    const info = serviceInfo[service];
-    if (info) {
-        alert(`${info.title}\n\n${info.description}\n\nЗвоните +7 (995) 776-75-75 для консультации!`);
-    }
-}
-
-// === INITIALIZATION ===
-document.addEventListener('DOMContentLoaded', () => {
-    new Navigation();
-    calculator = new Calculator();
-    new Portfolio();
-    modal = new Modal();
-    new Forms();
-    
-    console.log('🎨 Арзамас Декор - сайт загружен успешно!');
+// Инициализация при загрузке DOM
+document.addEventListener('DOMContentLoaded', function() {
+  initApp();
 });
+
+// Инициализация приложения
+function initApp() {
+  detectDevice();
+  initPreloader();
+  initScrollTop();
+  initFloatingButtons();
+  initSmoothScroll();
+  initLazyLoading();
+  initScrollAnimations();
+  handleScrollEvents();
+  
+  console.log('✅ Приложение инициализировано');
+}
+
+// Определение типа устройства
+function detectDevice() {
+  const width = window.innerWidth;
+  APP.isMobile = width < 768;
+  APP.isTablet = width >= 768 && width < 1024;
+  APP.isDesktop = width >= 1024;
+  
+  // Добавляем классы к body
+  document.body.classList.toggle('is-mobile', APP.isMobile);
+  document.body.classList.toggle('is-tablet', APP.isTablet);
+  document.body.classList.toggle('is-desktop', APP.isDesktop);
+}
+
+// Обработка изменения размера окна
+window.addEventListener('resize', debounce(function() {
+  detectDevice();
+}, 250));
+
+// Прелоадер
+function initPreloader() {
+  const preloader = document.getElementById('preloader');
+  if (!preloader) return;
+  
+  window.addEventListener('load', function() {
+    setTimeout(() => {
+      preloader.classList.add('hidden');
+      setTimeout(() => {
+        preloader.style.display = 'none';
+      }, 300);
+    }, 500);
+  });
+}
+
+// Кнопка "Наверх"
+function initScrollTop() {
+  const scrollTopBtn = document.querySelector('.scroll-top');
+  if (!scrollTopBtn) return;
+  
+  scrollTopBtn.addEventListener('click', function() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+}
+
+// Плавающие кнопки связи
+function initFloatingButtons() {
+  const floatingButtons = document.querySelectorAll('.floating-btn');
+  
+  floatingButtons.forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      if (href.startsWith('tel:') || href.startsWith('https://wa.me') || href.startsWith('https://t.me')) {
+        // Разрешаем переход по ссылке
+        return true;
+      }
+      e.preventDefault();
+    });
+  });
+}
+
+// Плавная прокрутка к якорям
+function initSmoothScroll() {
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      if (href === '#') return;
+      
+      e.preventDefault();
+      const target = document.querySelector(href);
+      
+      if (target) {
+        const headerHeight = document.querySelector('.header')?.offsetHeight || 0;
+        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+        
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth'
+        });
+        
+        // Закрываем мобильное меню если открыто
+        const nav = document.querySelector('.header__nav');
+        const burger = document.querySelector('.header__burger');
+        if (nav && nav.classList.contains('active')) {
+          nav.classList.remove('active');
+          burger?.classList.remove('active');
+        }
+      }
+    });
+  });
+}
+
+// Ленивая загрузка изображений
+function initLazyLoading() {
+  const images = document.querySelectorAll('img[data-src]');
+  
+  const imageObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        img.src = img.dataset.src;
+        img.removeAttribute('data-src');
+        observer.unobserve(img);
+      }
+    });
+  });
+  
+  images.forEach(img => imageObserver.observe(img));
+}
+
+// Анимации при скролле
+function initScrollAnimations() {
+  const elements = document.querySelectorAll('[data-aos]');
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('aos-animate');
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px'
+  });
+  
+  elements.forEach(el => observer.observe(el));
+}
+
+// Обработка событий скролла
+function handleScrollEvents() {
+  let ticking = false;
+  
+  window.addEventListener('scroll', function() {
+    APP.scrollPosition = window.pageYOffset;
+    
+    if (!ticking) {
+      window.requestAnimationFrame(function() {
+        updateScrollElements();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+}
+
+// Обновление элементов при скролле
+function updateScrollElements() {
+  const scrollTop = window.pageYOffset;
+  
+  // Хедер
+  const header = document.querySelector('.header');
+  if (header) {
+    header.classList.toggle('scrolled', scrollTop > 50);
+  }
+  
+  // Кнопка "Наверх"
+  const scrollTopBtn = document.querySelector('.scroll-top');
+  if (scrollTopBtn) {
+    scrollTopBtn.classList.toggle('visible', scrollTop > 500);
+  }
+}
+
+// Утилиты
+
+// Debounce функция
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Throttle функция
+function throttle(func, limit) {
+  let inThrottle;
+  return function() {
+    const args = arguments;
+    const context = this;
+    if (!inThrottle) {
+      func.apply(context, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+// Форматирование чисел
+function formatNumber(num) {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+
+// Валидация email
+function isValidEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+}
+
+// Валидация телефона
+function isValidPhone(phone) {
+  const re = /^[\d\s\+\-\(\)]+$/;
+  return re.test(phone) && phone.replace(/\D/g, '').length >= 10;
+}
+
+// Получение параметров из URL
+function getUrlParams() {
+  const params = {};
+  const queryString = window.location.search.substring(1);
+  const queries = queryString.split('&');
+  
+  queries.forEach(query => {
+    const [key, value] = query.split('=');
+    if (key) {
+      params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+    }
+  });
+  
+  return params;
+}
+
+// Показать уведомление
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.className = `notification notification--${type}`;
+  notification.textContent = message;
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 16px 24px;
+    background: ${type === 'success' ? '#27AE60' : type === 'error' ? '#E74C3C' : '#3498DB'};
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10000;
+    animation: slideInRight 0.3s ease-out;
+  `;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.animation = 'slideOutRight 0.3s ease-out';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+// Копирование в буфер обмена
+function copyToClipboard(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      showNotification('Скопировано в буфер обмена!', 'success');
+    });
+  } else {
+    // Fallback для старых браузеров
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    showNotification('Скопировано в буфер обмена!', 'success');
+  }
+}
+
+// Экспорт функций для использования в других модулях
+window.APP = APP;
+window.showNotification = showNotification;
+window.formatNumber = formatNumber;
+window.isValidEmail = isValidEmail;
+window.isValidPhone = isValidPhone;
+window.copyToClipboard = copyToClipboard;
+window.debounce = debounce;
+window.throttle = throttle;
