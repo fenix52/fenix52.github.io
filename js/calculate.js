@@ -108,23 +108,39 @@ let calculatorData = {
         }
 
         function loadFromLocalStorage() {
-            const saved = localStorage.getItem('arzamas_decor_calculator');
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    const savedTime = new Date(data.timestamp);
-                    const now = new Date();
-                    const hoursDiff = (now - savedTime) / (1000 * 60 * 60);
-                    if (hoursDiff < 24 && confirm('Найдены сохраненные данные. Продолжить?')) {
-                        calculatorData = data;
-                        restoreUI();
-                        showNotification('Данные восстановлены');
-                        return true;
-                    }
-                } catch (e) { console.error('Ошибка загрузки:', e); }
+    const saved = localStorage.getItem('arzamas_decor_calculator');
+    if (saved) {
+        try {
+            const data = JSON.parse(saved);
+            const savedTime = new Date(data.timestamp);
+            const now = new Date();
+            const minutesDiff = (now - savedTime) / (1000 * 60);
+            
+            // Восстанавливаем ТОЛЬКО свежие данные (< 30 минут)
+            if (minutesDiff < 30) {
+                calculatorData = data;
+                restoreUI();
+                
+                // Показываем время с момента сохранения
+                const timeAgo = Math.floor(minutesDiff);
+                setTimeout(() => {
+                    showNotification(`💾 Продолжаем расчёт (${timeAgo} мин. назад)`, 'success');
+                }, 1000);
+                
+                console.log(`💾 Автовосстановление (${timeAgo} мин. назад)`);
+                return true;
+            } else {
+                // Данные старые - удаляем молча
+                localStorage.removeItem('arzamas_decor_calculator');
+                console.log('🗑️ Старые данные удалены (> 30 мин)');
             }
-            return false;
+        } catch (e) { 
+            console.error('Ошибка загрузки:', e);
+            localStorage.removeItem('arzamas_decor_calculator');
         }
+    }
+    return false;
+}
 
         function restoreUI() {
             if (calculatorData.workType) {
@@ -723,3 +739,19 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// Функция сброса калькулятора
+function resetCalculator() {
+    // Очистка localStorage
+    localStorage.removeItem('arzamas_decor_calculator');
+    
+    // Уведомление
+    showNotification('🔄 Калькулятор сброшен', 'success');
+    
+    // Плавная перезагрузка через 500ms
+    setTimeout(() => {
+        window.location.href = '/calculator.html';
+    }, 500);
+    
+    console.log('🔄 Сброс калькулятора');
+}
