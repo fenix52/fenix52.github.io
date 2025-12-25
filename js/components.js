@@ -13,6 +13,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .catch(err => console.error('❌ Ошибка загрузки header:', err));
+        
+    // Загрузка Services
+    fetch('/components/services.html')
+        .then(r => r.text())
+        .then(html => {
+            const placeholder = document.getElementById('services-placeholder');
+            if (placeholder) placeholder.innerHTML = html;
+        })
+        .catch(err => console.error('❌ Ошибка загрузки services:', err));
     
     // Загрузка Footer
     fetch('/components/footer.html')
