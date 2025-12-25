@@ -1,0 +1,178 @@
+name: Optimize and Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  optimize-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: 📦 Install dependencies
+      run: |
+        npm init -y
+        npm install --save-dev terser clean-css-cli html-minifier imagemin-cli
+        npm install --save-dev @squoosh/cli workbox-cli
+        
+    - name: 🗜️ Minify JavaScript
+      run: |
+        mkdir -p dist/js
+        find js -name "*.js" -type f | while read file; do
+          output="dist/${file}"
+          mkdir -p "$(dirname "$output")"
+          npx terser "$file" \
+            --compress drop_console=true,passes=2 \
+            --mangle \
+            --output "$output"
+          echo "✅ Minified: $file → $output"
+        done
+        
+    - name: 🎨 Minify CSS
+      run: |
+        mkdir -p dist/css
+        find css -name "*.css" -type f | while read file; do
+          output="dist/${file}"
+          mkdir -p "$(dirname "$output")"
+          npx cleancss "$file" -o "$output"
+          echo "✅ Minified: $file → $output"
+        done
+        
+    - name: 📄 Minify HTML
+      run: |
+        mkdir -p dist
+        find . -maxdepth 1 -name "*.html" -type f | while read file; do
+          output="dist/$(basename "$file")"
+          npx html-minifier \
+            --collapse-whitespace \
+            --remove-comments \
+            --minify-css true \
+            --minify-js true \
+            "$file" -o "$output"
+          echo "✅ Minified: $file → $output"
+        done
+        
+    - name: 🖼️ Optimize Images
+      run: |
+        mkdir -p dist/images
+        if [ -d "images" ]; then
+          find images -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" \) | while read file; do
+            output="dist/${file%.*}.webp"
+            mkdir -p "$(dirname "$output")"
+            npx @squoosh/cli --webp auto "$file" -d "$(dirname "$output")"
+            echo "✅ Converted: $file → WebP"
+          done
+        fi
+        
+        # Copy existing images
+        if [ -d "images" ]; then
+          cp -r images dist/ 2>/dev/null || true
+        fi
+        
+    - name: 🔧 Generate Service Worker
+      run: |
+        cat > dist/sw.js << 'EOF'
+const CACHE_NAME = 'arzamas-decor-v1';
+const urlsToCache = [
+  '/',
+  '/index.html',
+  '/calculator.html',
+  '/css/variables.css',
+  '/css/header.css',
+  '/css/footer.css',
+  '/css/calculator.css',
+  '/js/calculator-main.js',
+  '/js/calculator-submit.js',
+  '/js/components.js'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
+  );
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => response || fetch(event.request))
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => 
+      Promise.all(
+        cacheNames.filter(name => name !== CACHE_NAME)
+          .map(name => caches.delete(name))
+      )
+    )
+  );
+});
+EOF
+        echo "✅ Service Worker created"
+        
+    - name: 📋 Copy other assets
+      run: |
+        # Copy assets
+        if [ -d "assets" ]; then
+          cp -r assets dist/ 2>/dev/null || true
+        fi
+        
+        # Copy fonts
+        if [ -d "fonts" ]; then
+          cp -r fonts dist/ 2>/dev/null || true
+        fi
+        
+        # Copy any other files
+        cp -r *.txt dist/ 2>/dev/null || true
+        cp -r *.xml dist/ 2>/dev/null || true
+        cp -r *.json dist/ 2>/dev/null || true
+        
+        echo "✅ Assets copied"
+        
+    - name: 📊 Build Report
+      run: |
+        echo "📊 Optimization Results:"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        
+        # Calculate savings
+        if [ -d "js" ]; then
+          original_js=$(find js -name "*.js" -type f -exec cat {} \; | wc -c)
+          minified_js=$(find dist/js -name "*.js" -type f -exec cat {} \; | wc -c)
+          js_savings=$((100 - (minified_js * 100 / original_js)))
+          echo "📦 JavaScript: $original_js → $minified_js bytes (↓ $js_savings%)"
+        fi
+        
+        if [ -d "css" ]; then
+          original_css=$(find css -name "*.css" -type f -exec cat {} \; | wc -c)
+          minified_css=$(find dist/css -name "*.css" -type f -exec cat {} \; | wc -c)
+          css_savings=$((100 - (minified_css * 100 / original_css)))
+          echo "🎨 CSS: $original_css → $minified_css bytes (↓ $css_savings%)"
+        fi
+        
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "✅ Build complete!"
+        
+    - name: 🚀 Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
+        force_orphan: true
