@@ -120,7 +120,10 @@ let calculatorData = {
             if (minutesDiff < 30) {
                 calculatorData = data;
                 restoreUI();
-                
+                        
+                //  Пульсация кнопки
+                document.querySelector('.floating-reset')?.classList.add('has-data');
+                        
                 // Показываем время с момента сохранения
                 const timeAgo = Math.floor(minutesDiff);
                 setTimeout(() => {
