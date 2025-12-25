@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
 function initBurgerMenu() {
     // Небольшая задержка для полной отрисовки DOM
     setTimeout(() => {
-        const burger = document.querySelector('.header__burger');
-        const nav = document.querySelector('.header__nav');
+        const burger = document.querySelector('.burger-menu');
+        const nav = document.querySelector('.main-nav');
         
         console.log('🍔 Burger:', burger);
         console.log('🧭 Nav:', nav);
