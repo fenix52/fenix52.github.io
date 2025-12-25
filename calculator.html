@@ -9,6 +9,7 @@
     <link rel="preload" href="/css/variables.css" as="style">
     <link rel="preload" href="/css/header.css" as="style">
     <link rel="preload" href="/css/footer.css" as="style">
+    <link rel="preload" href="/css/calculator.css" as="style">
     <link rel="preload" href="/assets/logo.svg" as="image">
 
     <!-- CSS -->
@@ -123,7 +124,6 @@
                                     <!-- КОМПАКТНЫЙ БЛОК КАЛЬКУЛЯТОРА -->
                                     <div class="selection-calculator">
                                         <div class="calc-body">
-                                            <!-- Выбранный материал -->
                                             <div class="calc-selection">
                                                 <div class="calc-selection-left">
                                                     <div class="calc-selection-label">Выбранный материал</div>
@@ -137,7 +137,6 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Цена -->
                                             <div class="calc-price-section">
                                                 <div class="calc-price-item">
                                                     <div class="calc-price-label">Цена за лист</div>
@@ -217,7 +216,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- КНОПКА ДАЛЕЕ - ВСЯ ШИРИНА -->
                                     <div class="next-button-container">
                                         <button class="next-button" style="display:none;" onclick="handleNext()">Далее</button>
                                     </div>
@@ -363,9 +361,9 @@
 
     <!-- Загрузка компонентов -->
     <script src="/js/components.js"></script>
-    <!-- НОВЫЙ СКРИПТ для отправки заявки -->
+    <!-- ОСНОВНАЯ ЛОГИКА КАЛЬКУЛЯТОРА -->
+    <script src="/js/calculator-main.js"></script>
+    <!-- ЛОГИКА ОТПРАВКИ ЗАЯВКИ -->
     <script src="/js/calculator-submit.js"></script>
-
-    <!-- Основная логика калькулятора (ПРОДОЛЖЕНИЕ В СЛЕДУЮЩЕМ СООБЩЕНИИ из-за ограничения длины) -->
 </body>
 </html>
