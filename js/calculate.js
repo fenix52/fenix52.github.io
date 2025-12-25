@@ -660,3 +660,35 @@ let calculatorData = {
             loadFromLocalStorage();
             updateProgressBar();
         });
+
+// Автозаполнение из URL параметров
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const service = urlParams.get('service');
+            
+            if (service) {
+                console.log('🔗 Получен параметр service:', service);
+                
+                // Маппинг услуг на типы работ
+                const serviceMap = {
+                    'flexible-brick': 'facade',
+                    'thermal-brick': 'facade', 
+                    'insulation': 'insulation'
+                };
+                
+                const workType = serviceMap[service];
+                if (workType) {
+                    console.log('🎯 Автовыбор типа работ:', workType);
+                    
+                    // Небольшая задержка для полной загрузки DOM
+                    setTimeout(() => {
+                        const card = document.querySelector(`[data-type="${workType}"]`);
+                        if (card) {
+                            card.click();
+                            console.log('✅ Тип работ выбран автоматически');
+                            showNotification(`Выбрана услуга: ${workType === 'facade' ? 'Отделка фасада' : 'Утепление'}`);
+                        }
+                    }, 500);
+                }
+            }
+        });
