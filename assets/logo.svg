@@ -1,0 +1,14 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="48" height="48" rx="10" fill="#E74C3C"/>
+  
+  <!-- House with roof (construction symbol) -->
+  <path d="M24 10L36 20V36C36 37.1046 35.1046 38 34 38H14C12.8954 38 12 37.1046 12 36V20L24 10Z" fill="white"/>
+  
+  <!-- Window -->
+  <rect x="19" y="24" width="10" height="10" rx="1" fill="#E74C3C"/>
+  
+  <!-- Decorative lines (brick imitation) -->
+  <line x1="14" y1="28" x2="18" y2="28" stroke="#C0392B" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="30" y1="28" x2="34" y2="28" stroke="#C0392B" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
