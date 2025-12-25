@@ -5,15 +5,15 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: var(--header-height);
+    height: 80px;
     background-color: white;
-    box-shadow: var(--shadow-sm);
-    z-index: var(--z-sticky);
-    transition: all var(--transition-base);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    z-index: 1000;
+    transition: all 0.3s ease;
 }
 
 .header--scrolled {
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     height: 70px;
 }
 
@@ -22,37 +22,48 @@
     align-items: center;
     justify-content: space-between;
     height: 100%;
-    gap: var(--spacing-md);
-    padding: 0 var(--spacing-md);
+    gap: 1.5rem;
+    padding: 0 1.5rem;
 }
 
 /* Logo */
 .header__logo {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text);
-    transition: color var(--transition-base);
+    gap: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #34495E;
+    transition: opacity 0.3s ease;
     flex-shrink: 0;
+    text-decoration: none;
 }
 
 .header__logo:hover {
-    color: var(--color-primary);
+    opacity: 0.8;
 }
 
 .header__logo-img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
     flex-shrink: 0;
+    display: block;
 }
 
 .header__logo-text {
     white-space: nowrap;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 @media (max-width: 480px) {
     .header__logo-text {
         display: none;
+    }
+    
+    .header__logo-img {
+        width: 40px;
+        height: 40px;
     }
 }
 
@@ -68,9 +79,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-md);
+    gap: 1.5rem;
     flex-wrap: nowrap;
     width: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 .header__menu-item {
@@ -78,14 +92,15 @@
 }
 
 .header__menu-link {
-    padding: var(--spacing-sm) var(--spacing-xs);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text);
+    padding: 0.75rem 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #34495E;
     position: relative;
-    transition: color var(--transition-base);
+    transition: color 0.3s ease;
     white-space: nowrap;
     display: block;
+    text-decoration: none;
 }
 
 .header__menu-link::after {
@@ -95,13 +110,13 @@
     left: 0;
     width: 0;
     height: 2px;
-    background-color: var(--color-primary);
-    transition: width var(--transition-base);
+    background-color: #E74C3C;
+    transition: width 0.3s ease;
 }
 
 .header__menu-link:hover,
 .header__menu-link.active {
-    color: var(--color-primary);
+    color: #E74C3C;
 }
 
 .header__menu-link:hover::after,
@@ -113,20 +128,21 @@
 .header__contacts {
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
+    gap: 1.5rem;
     flex-shrink: 0;
 }
 
 .header__phone {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text);
+    font-size: 1rem;
+    font-weight: 600;
+    color: #34495E;
     white-space: nowrap;
-    transition: color var(--transition-base);
+    transition: color 0.3s ease;
+    text-decoration: none;
 }
 
 .header__phone:hover {
-    color: var(--color-primary);
+    color: #E74C3C;
 }
 
 .header__cta {
@@ -140,16 +156,20 @@
     justify-content: space-between;
     width: 30px;
     height: 24px;
+    background: none;
+    border: none;
     cursor: pointer;
-    z-index: var(--z-fixed);
+    z-index: 1001;
+    padding: 0;
 }
 
 .header__burger span {
     width: 100%;
     height: 3px;
-    background-color: var(--color-text);
-    border-radius: var(--radius-sm);
-    transition: all var(--transition-base);
+    background-color: #34495E;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    display: block;
 }
 
 .header__burger.active span:nth-child(1) {
@@ -164,20 +184,25 @@
     transform: translateY(-10.5px) rotate(-45deg);
 }
 
+/* Body lock when menu open */
+body.menu-open {
+    overflow: hidden;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
     .header__menu {
-        gap: var(--spacing-sm);
+        gap: 1rem;
     }
     
     .header__menu-link {
         font-size: 0.875rem;
-        padding: var(--spacing-sm) var(--spacing-xs);
+        padding: 0.75rem 0.5rem;
     }
     
     .header__cta {
-        font-size: var(--font-size-sm);
-        padding: var(--spacing-xs) var(--spacing-md);
+        font-size: 0.875rem;
+        padding: 0.5rem 1.5rem;
     }
 }
 
@@ -185,16 +210,17 @@
 @media (max-width: 1024px) {
     .header__nav {
         position: fixed;
-        top: var(--header-height);
+        top: 80px;
         left: 0;
         width: 100%;
-        height: calc(100vh - var(--header-height));
+        height: calc(100vh - 80px);
         background-color: white;
-        padding: var(--spacing-2xl);
+        padding: 3rem;
         transform: translateX(-100%);
-        transition: transform var(--transition-base);
+        transition: transform 0.3s ease;
         overflow-y: auto;
         max-width: 100%;
+        z-index: 999;
     }
     
     .header__nav.active {
@@ -204,22 +230,22 @@
     .header__menu {
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--spacing-xl);
+        gap: 2rem;
         justify-content: flex-start;
     }
     
     .header__menu-link {
-        font-size: var(--font-size-lg);
-        padding: var(--spacing-md) 0;
+        font-size: 1.125rem;
+        padding: 1rem 0;
     }
     
     .header__contacts {
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--spacing-md);
-        margin-top: var(--spacing-2xl);
-        padding-top: var(--spacing-2xl);
-        border-top: 1px solid var(--color-border);
+        gap: 1.5rem;
+        margin-top: 3rem;
+        padding-top: 3rem;
+        border-top: 1px solid #E0E0E0;
     }
     
     .header__burger {
@@ -232,7 +258,21 @@
 }
 
 @media (max-width: 768px) {
+    .header {
+        height: 70px;
+    }
+    
+    .header__wrapper {
+        padding: 0 1rem;
+    }
+    
+    .header__nav {
+        top: 70px;
+        height: calc(100vh - 70px);
+        padding: 2rem;
+    }
+    
     .header__phone {
-        font-size: var(--font-size-base);
+        font-size: 1rem;
     }
 }
