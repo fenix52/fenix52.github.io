@@ -522,6 +522,7 @@ let calculatorData = {
         function init() {
             renderColorPalette();
             setupEventListeners();
+            updateGalleryImages();        
         }
 
         function renderColorPalette() {
