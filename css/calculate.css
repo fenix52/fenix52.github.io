@@ -511,8 +511,7 @@
             border-radius: 12px;
             padding: 30px;
             position: sticky;
-            top: 20px;
-            max-height: calc(100vh - 40px);
+            top: 20px;            
             overflow-y: auto;
             box-shadow: 0 4px 16px rgba(211,88,57,0.15);
         }
