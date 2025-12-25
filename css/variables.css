@@ -1,154 +1,81 @@
 :root {
-    /* Colors */
-    --color-primary: #E74C3C;
-    --color-primary-dark: #C0392B;
-    --color-primary-light: #EC7063;
-    --color-success: #27ae60;
-    --color-dark: #2C3E50;
-    --color-text: #34495E;
-    --color-text-light: #7F8C8D;
-    --color-border: #E0E0E0;
-    --color-bg: #F8F9FA;
+    /* Основные цвета */
+    --primary-color: #d35839;
+    --primary-hover: #c14d31;
+    --primary-light: #fef5f1;
+    --secondary-color: #2c3e50;
+    --secondary-light: #7f8c8d;
     
-    /* Typography */
-    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-size-base: 16px;
-    --line-height-base: 1.6;
+    /* Цвета фона */
+    --bg-main: #f5f5f5;
+    --bg-white: #ffffff;
+    --bg-grey: #ecf0f1;
+    --bg-success: #27ae60;
+    --bg-error: #e74c3c;
     
-    /* Spacing */
-    --spacing-xs: 0.5rem;
-    --spacing-sm: 1rem;
-    --spacing-md: 1.5rem;
-    --spacing-lg: 2rem;
-    --spacing-xl: 3rem;
+    /* Цвета текста */
+    --text-primary: #2c3e50;
+    --text-secondary: #7f8c8d;
+    --text-muted: #95a5a6;
+    --text-white: #ffffff;
     
-    /* Border Radius */
+    /* Границы */
+    --border-color: #ecf0f1;
+    --border-active: var(--primary-color);
+    
+    /* Тени */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 20px rgba(211, 88, 57, 0.25);
+    --shadow-primary: 0 4px 12px rgba(211, 88, 57, 0.3);
+    
+    /* Скругления */
     --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-xl: 20px;
+    --radius-md: 10px;
+    --radius-lg: 12px;
+    --radius-full: 50%;
     
-    /* Shadows */
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.15);
+    /* Отступы */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
     
-    /* Transitions */
+    /* Шрифты */
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-size-sm: 13px;
+    --font-size-base: 16px;
+    --font-size-lg: 18px;
+    --font-size-xl: 22px;
+    --font-size-2xl: 28px;
+    
+    /* Переходы */
     --transition-fast: 0.2s ease;
     --transition-base: 0.3s ease;
-    --transition-slow: 0.5s ease;
-}
-
-/* Button Styles */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    font-family: var(--font-family);
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: 1.5;
-    text-align: center;
-    text-decoration: none;
-    border: 2px solid transparent;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition-base);
-    white-space: nowrap;
-}
-
-.btn--primary {
-    background: var(--color-primary);
-    color: white;
-    border-color: var(--color-primary);
-}
-
-.btn--primary:hover {
-    background: var(--color-primary-dark);
-    border-color: var(--color-primary-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
-}
-
-.btn--success {
-    background: var(--color-success);
-    color: white;
-    border-color: var(--color-success);
-}
-
-.btn--success:hover {
-    background: #229954;
-    border-color: #229954;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
-}
-
-.btn--outline {
-    background: transparent;
-    color: var(--color-primary);
-    border-color: var(--color-primary);
-}
-
-.btn--outline:hover {
-    background: var(--color-primary);
-    color: white;
-}
-
-.btn--lg {
-    padding: 1rem 2rem;
-    font-size: 1.125rem;
-}
-
-.btn--sm {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-}
-
-/* Section Styles */
-.section {
-    position: relative;
-}
-
-.section__header {
-    text-align: center;
-    margin-bottom: 3rem;
-}
-
-.section__title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--color-dark);
-    margin-bottom: 1rem;
-}
-
-.section__subtitle {
-    font-size: 1.125rem;
-    color: var(--color-text-light);
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-/* Container */
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-@media (min-width: 768px) {
-    .container {
-        padding: 0 2rem;
-    }
-}
-
-@media (max-width: 640px) {
-    .section__title {
-        font-size: 2rem;
-    }
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
-    .section__subtitle {
-        font-size: 1rem;
+    /* Ширина контейнера */
+    --container-width: 1400px;
+    
+    /* Header */
+    --header-height: 80px;
+    --header-padding: 20px 0;
+    --header-bg: var(--bg-white);
+    --header-shadow: var(--shadow-sm);
+}
+
+/* Темная тема (опционально) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-main: #1a1a1a;
+        --bg-white: #2d2d2d;
+        --bg-grey: #3a3a3a;
+        --text-primary: #e0e0e0;
+        --text-secondary: #b0b0b0;
+        --text-muted: #808080;
+        --border-color: #3a3a3a;
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 }
