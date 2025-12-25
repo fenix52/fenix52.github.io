@@ -1,23 +1,56 @@
-/* Services Section */
-
-.services__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: var(--spacing-2xl);
-    margin-bottom: var(--spacing-3xl);
+/* Секция услуг */
+.services-section {
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
 }
 
-/* Service Card - Modern Design */
+.services-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Заголовок секции */
+.services-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.services-title {
+    font-size: 42px;
+    font-weight: 800;
+    color: #2c3e50;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #d35839, #c14d31);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.services-subtitle {
+    font-size: 18px;
+    color: #7f8c8d;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Сетка карточек */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    margin-bottom: 60px;
+}
+
+/* Карточка услуги */
 .service-card {
-    position: relative;
     background: white;
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    padding: 40px 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    flex-direction: column;
-    border: 1px solid rgba(231, 76, 60, 0.1);
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
 }
 
 .service-card::before {
@@ -27,286 +60,213 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    background: linear-gradient(90deg, #d35839, #c14d31);
     transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.4s ease;
 }
 
 .service-card:hover {
-    transform: translateY(-12px);
-    box-shadow: 0 12px 40px rgba(231, 76, 60, 0.15);
-    border-color: var(--color-primary);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(211,88,57,0.2);
+    border-color: #d35839;
 }
 
 .service-card:hover::before {
     transform: scaleX(1);
 }
 
-.service-card__image {
-    position: relative;
-    width: 100%;
-    height: 240px;
-    overflow: hidden;
-    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+/* Популярная карточка */
+.service-card--featured {
+    border: 2px solid #d35839;
+    background: linear-gradient(135deg, #fff5f1 0%, #ffffff 100%);
 }
 
-.service-card__image::after {
-    content: '';
+.service-badge {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 100px;
-    background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-}
-
-.service-card:hover .service-card__image::after {
-    opacity: 1;
-}
-
-.service-card__image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.service-card:hover .service-card__image img {
-    transform: scale(1.08) rotate(1deg);
-}
-
-.service-card__badge {
-    position: absolute;
-    top: var(--spacing-md);
-    right: var(--spacing-md);
-    padding: var(--spacing-xs) var(--spacing-lg);
-    background: linear-gradient(135deg, rgba(231, 76, 60, 0.95), rgba(192, 57, 43, 0.95));
-    backdrop-filter: blur(10px);
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #d35839, #c14d31);
     color: white;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-bold);
-    border-radius: var(--radius-full);
-    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
-    z-index: 2;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(211,88,57,0.3);
 }
 
-.service-card__badge--new {
-    background: linear-gradient(135deg, rgba(39, 174, 96, 0.95), rgba(34, 153, 84, 0.95));
-    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
-}
-
-.service-card__content {
-    padding: var(--spacing-2xl);
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.service-card__title {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text);
-    margin-bottom: var(--spacing-md);
-    line-height: 1.3;
-    transition: color 0.3s ease;
-}
-
-.service-card:hover .service-card__title {
-    color: var(--color-primary);
-}
-
-.service-card__description {
-    color: var(--color-text-light);
-    line-height: var(--line-height-relaxed);
-    margin-bottom: var(--spacing-xl);
-    font-size: var(--font-size-base);
-}
-
-.service-card__features {
-    margin-bottom: var(--spacing-xl);
-    flex: 1;
-    display: grid;
-    gap: var(--spacing-sm);
-}
-
-.service-card__features li {
-    padding: var(--spacing-sm) var(--spacing-md);
-    color: var(--color-text);
-    font-size: var(--font-size-sm);
-    position: relative;
-    padding-left: var(--spacing-2xl);
-    background: var(--color-bg-alt);
-    border-radius: var(--radius-md);
-    transition: all 0.3s ease;
-}
-
-.service-card__features li:hover {
-    background: var(--color-primary);
-    color: white;
-    transform: translateX(4px);
-}
-
-.service-card__features li::before {
-    content: '✓';
-    position: absolute;
-    left: var(--spacing-sm);
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--color-success);
-    font-weight: bold;
-    font-size: 1.1em;
-    transition: color 0.3s ease;
-}
-
-.service-card__features li:hover::before {
-    color: white;
-}
-
-.service-card__footer {
+/* Иконка */
+.service-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #fef5f1, #fef5f1);
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding-top: var(--spacing-lg);
-    border-top: 2px solid var(--color-border);
-    gap: var(--spacing-md);
+    justify-content: center;
+    margin-bottom: 24px;
+    transition: all 0.4s ease;
 }
 
-.service-card__price {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.service-icon svg {
+    width: 40px;
+    height: 40px;
+    stroke: #d35839;
+    stroke-width: 2;
 }
 
-.service-card__footer .btn {
+.service-card:hover .service-icon {
+    background: linear-gradient(135deg, #d35839, #c14d31);
+    transform: rotate(360deg) scale(1.1);
+}
+
+.service-card:hover .service-icon svg {
+    stroke: white;
+}
+
+/* Название услуги */
+.service-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 16px;
+}
+
+/* Описание */
+.service-desc {
+    font-size: 15px;
+    color: #7f8c8d;
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+/* Список преимуществ */
+.service-features {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 24px;
+}
+
+.service-features li {
+    font-size: 14px;
+    color: #2c3e50;
+    padding: 8px 0;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.service-features li:last-child {
+    border-bottom: none;
+}
+
+/* Цена */
+.service-price {
+    font-size: 28px;
+    font-weight: 800;
+    color: #d35839;
+    margin-bottom: 20px;
+}
+
+/* Кнопка */
+.service-btn {
+    display: block;
+    width: 100%;
+    padding: 16px 24px;
+    background: #ecf0f1;
+    color: #2c3e50;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 15px;
     transition: all 0.3s ease;
+    border: 2px solid transparent;
 }
 
-.service-card__footer .btn:hover {
-    transform: scale(1.05);
-}
-
-/* CTA Banner - Premium Design */
-.services__cta {
-    margin-top: var(--spacing-3xl);
-}
-
-.cta-banner {
-    position: relative;
-    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 50%, #e74c3c 100%);
-    background-size: 200% 200%;
-    animation: gradientShift 6s ease infinite;
-    padding: var(--spacing-3xl) var(--spacing-2xl);
-    border-radius: var(--radius-2xl);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-2xl);
+.service-btn:hover {
+    background: #d35839;
     color: white;
-    box-shadow: 0 8px 32px rgba(231, 76, 60, 0.3);
-    overflow: hidden;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(211,88,57,0.3);
 }
 
-.cta-banner::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    animation: rotate 20s linear infinite;
+.service-btn--primary {
+    background: linear-gradient(135deg, #d35839, #c14d31);
+    color: white;
 }
 
-@keyframes gradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+.service-btn--primary:hover {
+    background: linear-gradient(135deg, #c14d31, #a8402a);
 }
 
-@keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+/* CTA блок */
+.services-cta {
+    text-align: center;
+    padding: 40px;
+    background: linear-gradient(135deg, #d35839, #c14d31);
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(211,88,57,0.3);
 }
 
-.cta-banner__content {
-    position: relative;
-    z-index: 1;
+.services-cta-text {
+    font-size: 20px;
+    color: white;
+    margin-bottom: 20px;
+    font-weight: 600;
 }
 
-.cta-banner__title {
-    font-size: var(--font-size-3xl);
-    font-weight: var(--font-weight-bold);
-    margin-bottom: var(--spacing-sm);
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.cta-banner__text {
-    font-size: var(--font-size-lg);
-    opacity: 0.95;
-    line-height: 1.6;
-}
-
-.cta-banner .btn {
-    position: relative;
-    z-index: 1;
-    white-space: nowrap;
-    background-color: white;
-    color: var(--color-primary);
-    font-weight: var(--font-weight-bold);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+.services-cta-btn {
+    display: inline-block;
+    padding: 16px 40px;
+    background: white;
+    color: #d35839;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 16px;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-.cta-banner .btn:hover {
-    background-color: var(--color-bg);
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+.services-cta-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .services__grid {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: var(--spacing-xl);
-    }
-}
-
+/* Адаптивность */
 @media (max-width: 768px) {
-    .services__grid {
+    .services-section {
+        padding: 60px 15px;
+    }
+
+    .services-title {
+        font-size: 32px;
+    }
+
+    .services-grid {
         grid-template-columns: 1fr;
-        gap: var(--spacing-xl);
+        gap: 20px;
     }
-    
-    .service-card__image {
-        height: 200px;
+
+    .service-card {
+        padding: 30px 20px;
     }
-    
-    .service-card__content {
-        padding: var(--spacing-xl);
+
+    .service-name {
+        font-size: 20px;
     }
-    
-    .service-card__title {
-        font-size: var(--font-size-xl);
+
+    .service-price {
+        font-size: 24px;
     }
-    
-    .cta-banner {
-        flex-direction: column;
-        text-align: center;
-        padding: var(--spacing-2xl) var(--spacing-lg);
+}
+
+@media (max-width: 480px) {
+    .services-title {
+        font-size: 28px;
     }
-    
-    .cta-banner__title {
-        font-size: var(--font-size-2xl);
-    }
-    
-    .cta-banner .btn {
-        width: 100%;
+
+    .services-subtitle {
+        font-size: 16px;
     }
 }
