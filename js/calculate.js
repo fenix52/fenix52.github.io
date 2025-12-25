@@ -661,34 +661,65 @@ let calculatorData = {
             updateProgressBar();
         });
 
-// Автозаполнение из URL параметров
-        window.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const service = urlParams.get('service');
-            
-            if (service) {
-                console.log('🔗 Получен параметр service:', service);
-                
-                // Маппинг услуг на типы работ
-                const serviceMap = {
-                    'flexible-brick': 'facade',
-                    'thermal-brick': 'facade', 
-                    'insulation': 'insulation'
-                };
-                
-                const workType = serviceMap[service];
-                if (workType) {
-                    console.log('🎯 Автовыбор типа работ:', workType);
-                    
-                    // Небольшая задержка для полной загрузки DOM
-                    setTimeout(() => {
-                        const card = document.querySelector(`[data-type="${workType}"]`);
-                        if (card) {
-                            card.click();
-                            console.log('✅ Тип работ выбран автоматически');
-                            showNotification(`Выбрана услуга: ${workType === 'facade' ? 'Отделка фасада' : 'Утепление'}`);
-                        }
-                    }, 500);
-                }
+// Автозаполнение из URL параметров 
+window.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const service = urlParams.get('service');
+    
+    if (service) {
+        console.log('🔗 Получен параметр service:', service);
+        
+        // Расширенный маппинг: тип работ + конкретный материал
+        const serviceMap = {
+            'flexible-brick': { 
+                workType: 'facade', 
+                materialId: 'flexible-brick',
+                name: 'Гибкий кирпич'
+            },
+            'thermal-brick': { 
+                workType: 'facade', 
+                materialId: 'thermal-brick',
+                name: 'Термопанель под кирпич'
+            },
+            'insulation': { 
+                workType: 'insulation', 
+                materialId: 'penoplast50',
+                name: 'Пенопласт 50мм'
             }
-        });
+        };
+        
+        const config = serviceMap[service];
+        if (config) {
+            console.log('🎯 Автовыбор:', config.name);
+            
+            // Шаг 1: Выбор типа работ (задержка 500ms)
+            setTimeout(() => {
+                const workCard = document.querySelector(`[data-type="${config.workType}"]`);
+                if (workCard) {
+                    workCard.click();
+                    console.log('✅ Шаг 1: Тип работ выбран -', config.workType);
+                    
+                    // Шаг 2: Выбор материала (задержка 1500ms для загрузки материалов)
+                    setTimeout(() => {
+                        const materialCard = document.querySelector(`[data-material-id="${config.materialId}"]`);
+                        if (materialCard) {
+                            materialCard.click();
+                            console.log('✅ Шаг 2: Материал выбран -', config.materialId);
+                            
+                            // Шаг 3: Автопереход на шаг с размерами (задержка 500ms)
+                            setTimeout(() => {
+                                goToNextStep(); // Переходим к вводу размеров
+                                console.log('✅ Шаг 3: Переход к размерам');
+                                showNotification(`🎯 Выбрано: ${config.name}`);
+                            }, 500);
+                        } else {
+                            console.warn('⚠️ Материал не найден:', config.materialId);
+                        }
+                    }, 1500);
+                } else {
+                    console.warn('⚠️ Тип работ не найден:', config.workType);
+                }
+            }, 500);
+        }
+    }
+});
