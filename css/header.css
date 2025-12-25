@@ -105,6 +105,18 @@
     background: var(--text-primary, #2c3e50);
     transition: all var(--transition-base, 0.3s ease);
 }
+/* Анимация при открытии меню */
+.burger-menu.active span:nth-child(1) {
+    transform: rotate(45deg) translate(7px, 7px);
+}
+
+.burger-menu.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.burger-menu.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
 
 /* Mobile styles */
 @media (max-width: 768px) {
