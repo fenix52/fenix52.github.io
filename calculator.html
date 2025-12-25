@@ -62,64 +62,6 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        .header {
-            background: white;
-            padding: 20px 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-icon {
-            width: 48px;
-            height: 48px;
-            background: #d35839;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            padding: 4px;
-        }
-
-        .logo-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .logo-text h1 {
-            font-size: 22px;
-            color: #2c3e50;
-            margin-bottom: 2px;
-        }
-
-        .logo-text p {
-            font-size: 14px;
-            color: #7f8c8d;
-        }
-
-        .phone {
-            font-size: 20px;
-            font-weight: 700;
-            color: #d35839;
-            text-decoration: none;
-            transition: opacity 0.3s;
-        }
-
-        .phone:hover {
-            opacity: 0.8;
-        }
-
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 400px;
@@ -760,6 +702,7 @@
 
         .container {
             margin: 0 auto;
+            background: white;
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 3px 15px rgba(0,0,0,0.1);
@@ -889,19 +832,6 @@
             font-size: 28px;
             font-weight: 700;
             color: #212529;
-        }
-
-        .calc-selection-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #D65F4B 0%, #C44A36 100%);
-            border-radius: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            color: white;
-            box-shadow: 0 4px 12px rgba(214, 95, 75, 0.3);
         }
 
         /* Блок цены */
@@ -1332,7 +1262,6 @@
                 font-size: 11px;
             }
         }
-    
     </style>
 </head>
 <body>
@@ -1340,6 +1269,8 @@
     <div id="header-placeholder"></div>
 
     <!-- Основной контент калькулятора -->
+    <div class="notification" id="notification"></div>
+    <div class="container">
         <div class="main-grid">
             <div class="calculator-card">
                 <div class="progress-section">
@@ -1438,13 +1369,7 @@
                             <div class="calc-selection-left">
                                 <div class="calc-selection-label">Выбранный материал</div>
                                 <div class="calc-selection-value" id="selectionText">микс 100</div>
-                            </div>
-                            <div class="calc-selection-icon">
-                                <svg class="option-icon" viewBox="0 0 25 25" fill="none" stroke="currentColor">
-                                    <rect x="5" y="5" width="15" height="15" stroke-width="1"></rect>
-                                    <path d="M8 8h8M8 12h8M8 16h8" stroke-width="1" stroke-linecap="round"></path>
-                                </svg>
-                            </div>
+                            </div>                            
                         </div>
 
                         <!-- Цена -->
@@ -1669,14 +1594,14 @@
         </div>
     </div>
 
-        
     <!-- Footer компонент -->
     <div id="footer-placeholder"></div>
 
     <!-- Загрузка компонентов -->
     <script src="/js/components.js"></script>
 
-    <!-- Основная логика калькулятора --><script>
+    <!-- Основная логика калькулятора -->
+    <script>
         let calculatorData = {
             workType: null,
             workTypeName: null,
@@ -1959,7 +1884,7 @@
                 document.querySelectorAll('[data-type]').forEach(c => c.classList.remove('selected'));
                 this.classList.add('selected');
                 calculatorData.workType = this.dataset.type;
-                const names = { facade: 'Отделка фасада', interior: '/images/calcimg/Отделка интерьера', insulation: 'Утепление фасада' };
+                const names = { facade: 'Отделка фасада', interior: 'Отделка интерьера', insulation: 'Утепление фасада' };
                 calculatorData.workTypeName = names[calculatorData.workType];
                 loadMaterials(calculatorData.workType);
                 document.getElementById('step1Next').disabled = false;
@@ -2339,5 +2264,5 @@
             updateProgressBar();
         });
     </script>
-
+</body>
 </html>
