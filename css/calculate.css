@@ -1240,104 +1240,74 @@
 
 
 /* ============================================
-   Floating кнопка сброса калькулятора
+   Кнопка сброса в блоке ВАША СМЕТА
    ============================================ */
-.floating-reset {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 56px;
-    height: 56px;
-    background: linear-gradient(135deg, #d35839, #c14d31);
-    border: none;
-    border-radius: 50%;
+
+.reset-button-estimate {
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+    border: 2px solid #bdc3c7;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 4px 20px rgba(211, 88, 57, 0.4);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 999;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 10px;
+    font-family: inherit;
 }
 
-.floating-reset svg {
-    width: 28px;
-    height: 28px;
+.reset-button-estimate svg {
+    width: 20px;
+    height: 20px;
     stroke: white;
     transition: transform 0.3s ease;
 }
 
-/* Анимация при наведении */
-.floating-reset:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 30px rgba(211, 88, 57, 0.6);
+.reset-button-estimate:hover {
+    background: linear-gradient(135deg, #d35839, #c14d31);
+    border-color: #d35839;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(211, 88, 57, 0.3);
 }
 
-.floating-reset:hover svg {
+.reset-button-estimate:hover svg {
     transform: rotate(-180deg);
 }
 
-/* Анимация при клике */
-.floating-reset:active {
-    transform: scale(0.95);
+.reset-button-estimate:active {
+    transform: translateY(0);
 }
 
-/* Пульсация для привлечения внимания (опционально) */
-@keyframes pulse {
+/* Пульсация если есть данные */
+.reset-button-estimate.has-data {
+    animation: pulseBorder 2s infinite;
+}
+
+@keyframes pulseBorder {
     0%, 100% {
-        box-shadow: 0 4px 20px rgba(211, 88, 57, 0.4);
+        border-color: #bdc3c7;
     }
     50% {
-        box-shadow: 0 4px 30px rgba(211, 88, 57, 0.7);
+        border-color: #d35839;
+        box-shadow: 0 0 0 3px rgba(211, 88, 57, 0.2);
     }
 }
 
-/* Применяется только если есть сохранённые данные */
-.floating-reset.has-data {
-    animation: pulse 2s infinite;
-}
-
-/* Адаптивность для планшетов */
-@media (max-width: 1024px) {
-    .floating-reset {
-        bottom: 25px;
-        right: 25px;
-        width: 52px;
-        height: 52px;
-    }
-    
-    .floating-reset svg {
-        width: 26px;
-        height: 26px;
-    }
-}
-
-/* Адаптивность для мобильных */
+/* Адаптивность */
 @media (max-width: 768px) {
-    .floating-reset {
-        bottom: 20px;
-        right: 20px;
-        width: 48px;
-        height: 48px;
+    .reset-button-estimate {
+        padding: 12px 16px;
+        font-size: 14px;
     }
     
-    .floating-reset svg {
-        width: 24px;
-        height: 24px;
-    }
-}
-
-/* Для очень маленьких экранов */
-@media (max-width: 480px) {
-    .floating-reset {
-        bottom: 15px;
-        right: 15px;
-        width: 44px;
-        height: 44px;
-    }
-    
-    .floating-reset svg {
-        width: 22px;
-        height: 22px;
+    .reset-button-estimate svg {
+        width: 18px;
+        height: 18px;
     }
 }
