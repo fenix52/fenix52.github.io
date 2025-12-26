@@ -688,7 +688,6 @@ window.addEventListener('DOMContentLoaded', function() {
     if (service) {
         console.log('🔗 Получен параметр service:', service);
         
-        // Расширенный маппинг: тип работ + конкретный материал
         const serviceMap = {
             'flexible-brick': { 
                 workType: 'facade', 
@@ -709,52 +708,32 @@ window.addEventListener('DOMContentLoaded', function() {
         
         const config = serviceMap[service];
         if (config) {
-            console.log('🎯 Автовыбор:', config.name);
+            console.log('🎯 Мгновенный автовыбор:', config.name);
             
-            // Шаг 1: Выбор типа работ (задержка 500ms)
-            setTimeout(() => {
-                const workCard = document.querySelector(`[data-type="${config.workType}"]`);
-                if (workCard) {
-                    workCard.click();
-                    console.log('✅ Шаг 1: Тип работ выбран -', config.workType);
-                    
-                    // Шаг 2: Выбор материала (задержка 1500ms для загрузки материалов)
+            // Шаг 1: МГНОВЕННЫЙ выбор типа работ
+            const workCard = document.querySelector(`[data-type="${config.workType}"]`);
+            if (workCard) {
+                workCard.click();
+                console.log('✅ Шаг 1: Тип работ -', config.workType);
+                
+                // Шаг 2: Минимальная задержка для рендеринга материалов
+                requestAnimationFrame(() => {
                     setTimeout(() => {
                         const materialCard = document.querySelector(`[data-material-id="${config.materialId}"]`);
                         if (materialCard) {
                             materialCard.click();
-                            console.log('✅ Шаг 2: Материал выбран -', config.materialId);
+                            console.log('✅ Шаг 2: Материал -', config.materialId);
                             
-                            // Шаг 3: Автопереход на шаг с размерами (задержка 500ms)
-                            setTimeout(() => {
-                                goToNextStep(); // Переходим к вводу размеров
+                            // Шаг 3: Мгновенный переход
+                            requestAnimationFrame(() => {
+                                goToNextStep();
                                 console.log('✅ Шаг 3: Переход к размерам');
                                 showNotification(`🎯 Выбрано: ${config.name}`);
-                            }, 500);
-                        } else {
-                            console.warn('⚠️ Материал не найден:', config.materialId);
+                            });
                         }
-                    }, 1500);
-                } else {
-                    console.warn('⚠️ Тип работ не найден:', config.workType);
-                }
-            }, 500);
+                    }, 50); // 50ms - минимум для загрузки материалов
+                });
+            }
         }
     }
 });
-
-// Функция сброса калькулятора
-function resetCalculator() {
-    // Очистка localStorage
-    localStorage.removeItem('arzamas_decor_calculator');
-    
-    // Уведомление
-    showNotification('🔄 Калькулятор сброшен', 'success');
-    
-    // Плавная перезагрузка через 500ms
-    setTimeout(() => {
-        window.location.href = '/calculator.html';
-    }, 500);
-    
-    console.log('🔄 Сброс калькулятора');
-}
