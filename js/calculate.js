@@ -122,7 +122,7 @@ let calculatorData = {
                 restoreUI();
                         
                 //  Пульсация кнопки
-                document.querySelector('.floating-reset')?.classList.add('has-data');
+                document.querySelector('.reset-button-estimate')?.classList.add('has-data');
                         
                 // Показываем время с момента сохранения
                 const timeAgo = Math.floor(minutesDiff);
